@@ -5,18 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 @Entity
-
-@NoArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotBlank(message = "Không được bỏ trống")
     private String name;
     private int quantity;
 
-    public Department(String name) {
-        this.name = name;
+    public Department() {
     }
 
     public Department(String name, int quantity) {
@@ -28,20 +24,20 @@ public class Department {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getQuantity() {
         return quantity;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setQuantity(int quantity) {

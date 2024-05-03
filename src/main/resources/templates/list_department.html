@@ -13,7 +13,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <div>
-        <button class="btn btn-warning border-dark" data-bs-toggle="modal" data-bs-target="#add" >Thêm phòng ban</button>
+        <button class="btn btn-warning border-dark" data-bs-toggle="modal" data-bs-target="#add" id="addDepartment" >Thêm phòng ban</button>
         <div class="modal fade text-center" id="add">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -21,6 +21,7 @@
                     <div class="modal-body">
                         <form action="#" th:action="@{/addDepartment}" method="post" class="form-container" align="center" th:object="${department}">
                             <input type="text" th:field="*{name}" placeholder="Nhập tên phòng" id="deptName" required/>
+                            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error" style="color:red"></p>
                             <br/>
                             <button type="submit" class="btn btn-warning">Thêm</button>
                         </form>
@@ -32,11 +33,9 @@
             </div>
         </div>
         <form class="form-inline m-3">
-<!--            Filter search: &nbsp;<input type="text" name="keyword" th:value="${keyword}"/>-->
-            Filter search: &nbsp;<input type="text" name="keyword"/>
+            Filter search: &nbsp;<input type="text" name="keyword" th:value="${keyword}"/>
             &nbsp;&nbsp;
             <input type="submit" value="Search" class="btn btn-warning border-dark"/>
-            &nbsp;&nbsp;
         </form>
     </div>
     <table class="table table-striped table-bordered table-hover">
@@ -58,14 +57,15 @@
                 <a class="btn btn-warning border-dark">&nbsp;Xem</a>
             </td>
             <td align="center">
-                <span class="fa fa-pencil" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${dept.id}"></span>
+                <span class="fa fa-pencil" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${dept.id}" th:id="'updateDepartment' + ${dept.id}"></span>
                     <div class="modal fade text-center" th:id="'modal' + ${dept.id}">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">Sửa phòng ban</div>
                                 <div class="modal-body">
-                                    <form th:action="@{'/updateDepartment/' + ${dept.id}}" method="post" class="form-container" align="center">
+                                    <form th:action="@{'/updateDepartment/' + ${dept.id}}" method="post" class="form-container" align="center" th:object="${updateDepartment}">
                                         <input type="text" th:value="${dept.name}" th:name="name" id="name"  required/>
+                                        <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error" style="color:red"></p>
                                         <br/>
                                         <button type="submit" class="btn btn-warning border-dark">Lưu</button>
                                     </form>
@@ -131,5 +131,20 @@
 <!--        </nav>-->
 <!--    </div>-->
 </div>
+
+<script th:inline="javascript">
+
+    let isShowAddModal = [[${isShowAddModal}]];
+    if (!!isShowAddModal) {
+        document.getElementById('addDepartment').click();
+    }
+
+    let departmentId = [[${departmentId}]]
+    let isShowUpdateModal = [[${isShowUpdateModal}]];
+    if (!!isShowUpdateModal) {
+        let id = 'updateDepartment' + departmentId;
+        document.getElementById(id).click();
+    }
+</script>
 </body>
 </html>
