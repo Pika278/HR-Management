@@ -8,8 +8,11 @@ import java.util.List;
 
 public interface DepartmentService {
     void createDepartment(DepartmentRequest request);
-    List<Department> getAllDepartment();
+    List<DepartmentResponse> getAllDepartment();
     void updateDepartment(Long id, DepartmentRequest departmentRequest);
     DepartmentResponse findById(Long id);
     void deleteDepartment(Long id);
+    boolean departmentExists(DepartmentRequest departmentRequest);
+    List<DepartmentResponse> findByName(String name);
+
 }
