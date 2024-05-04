@@ -19,8 +19,8 @@
                 <div class="modal-content">
                     <div class="modal-header">Thêm phòng ban</div>
                     <div class="modal-body">
-                        <form action="#" th:action="@{/addDepartment}" method="post" class="form-container" align="center" th:object="${department}">
-                            <input type="text" th:field="*{name}" placeholder="Nhập tên phòng" id="deptName" required/>
+                        <form action="#" th:action="@{/addDepartment}" method="post" class="form-container" align="center" th:object="${departmentRequest}">
+                            <input type="text" th:field="*{name}" placeholder="Nhập tên phòng" required/>
                             <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error" style="color:red"></p>
                             <br/>
                             <button type="submit" class="btn btn-warning">Thêm</button>
@@ -34,7 +34,7 @@
         </div>
         <form class="form-inline m-3">
             Filter search: &nbsp;<input type="text" name="keyword" th:value="${keyword}"/>
-            &nbsp;&nbsp;
+            &nbsp;&nbsp
             <input type="submit" value="Search" class="btn btn-warning border-dark"/>
         </form>
     </div>
@@ -64,7 +64,7 @@
                                 <div class="modal-header">Sửa phòng ban</div>
                                 <div class="modal-body">
                                     <form th:action="@{'/updateDepartment/' + ${dept.id}}" method="post" class="form-container" align="center" th:object="${updateDepartment}">
-                                        <input type="text" th:value="${dept.name}" th:name="name" id="name"  required/>
+                                        <input type="text" th:value="${dept.name}" th:name="name" required/>
                                         <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error" style="color:red"></p>
                                         <br/>
                                         <button type="submit" class="btn btn-warning border-dark">Lưu</button>
@@ -99,37 +99,37 @@
         </tbody>
     </table>
 
-<!--    <div th:if="${totalPages > 1}" th:with="pageUrlPostfix='?keyword=' + ${keyword}">-->
-<!--        <nav>-->
-<!--            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/listEmployee/page/'">-->
-<!--                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}" >-->
-<!--                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${1} + ${pageUrlPostfix}}">-->
-<!--                        First-->
-<!--                    </a>-->
-<!--                </li>-->
-<!--                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}" >-->
-<!--                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${currentPage - 1} + ${pageUrlPostfix}}">-->
-<!--                        Previous-->
-<!--                    </a>-->
-<!--                </li>-->
-<!--                <li th:each="i:${#numbers.sequence(1,totalPages)}" th:class="${currentPage != i ? 'page-item' : 'page-item active'}" >-->
-<!--                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${i} + ${pageUrlPostfix}}">-->
-<!--                        [[${i}]]-->
-<!--                    </a>-->
-<!--                </li>-->
-<!--                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}" >-->
-<!--                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${currentPage + 1} + ${pageUrlPostfix}}">-->
-<!--                        Next-->
-<!--                    </a>-->
-<!--                </li>-->
-<!--                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}" >-->
-<!--                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${totalPages} + ${pageUrlPostfix}}">-->
-<!--                        Last-->
-<!--                    </a>-->
-<!--                </li>-->
-<!--            </ul>-->
-<!--        </nav>-->
-<!--    </div>-->
+    <div th:if="${totalPages > 1}" th:with="pageUrlPostfix='?keyword=' + ${keyword}">
+        <nav>
+            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/department/'">
+                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${1} + ${pageUrlPostfix}}">
+                        First
+                    </a>
+                </li>
+                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${currentPage - 1} + ${pageUrlPostfix}}">
+                        Previous
+                    </a>
+                </li>
+                <li th:each="i:${#numbers.sequence(1,totalPages)}" th:class="${currentPage != i ? 'page-item' : 'page-item active'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${i} + ${pageUrlPostfix}}">
+                        [[${i}]]
+                    </a>
+                </li>
+                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${currentPage + 1} + ${pageUrlPostfix}}">
+                        Next
+                    </a>
+                </li>
+                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${totalPages} + ${pageUrlPostfix}}">
+                        Last
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
 
 <script th:inline="javascript">

@@ -4,7 +4,9 @@ import com.example.hrm.dto.request.DepartmentRequest;
 import com.example.hrm.dto.response.DepartmentResponse;
 import com.example.hrm.entity.Department;
 import com.example.hrm.service.DepartmentService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,9 +19,11 @@ import java.util.List;
 @Controller
 public class DepartmentController {
     private final DepartmentService departmentService;
+    private final HttpSession session;
 
-    public DepartmentController(DepartmentService departmentService) {
+    public DepartmentController(DepartmentService departmentService, HttpSession session) {
         this.departmentService = departmentService;
+        this.session = session;
     }
 
     @GetMapping("/")
@@ -27,11 +31,11 @@ public class DepartmentController {
         return "index";
     }
 
-    @GetMapping("/department")
-    public String listDepartment(@RequestParam("keyword") String keyword, Model model) {
-        if(!model.containsAttribute("department")) {
+    @GetMapping("/department/{numPage}")
+    public String listDepartment(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
+        if(!model.containsAttribute("departmentRequest")) {
             DepartmentRequest departmentRequest = new DepartmentRequest();
-            model.addAttribute("department",departmentRequest);
+            model.addAttribute("departmentRequest",departmentRequest);
         }
         else {
             model.addAttribute("isShowAddModal", true);
@@ -42,51 +46,63 @@ public class DepartmentController {
         }
         else {
             model.addAttribute("isShowUpdateModal", true);
+            long id = (long) session.getAttribute("departmentId");
+            model.addAttribute("departmentId",id);
         }
-//        List<DepartmentResponse> listDept = departmentService.getAllDepartment();
-        List<DepartmentResponse> listDept = departmentService.findByName(keyword);
-        model.addAttribute("keyword",keyword);
+        int pageSize = 5;
+        String sortBy="id";
+        Page<DepartmentResponse> page = departmentService.findByNamePaging(pageNum,pageSize,sortBy,keyword);
+        List<DepartmentResponse> listDept = page.getContent();
+        model.addAttribute("totalPages",page.getTotalPages());
+        model.addAttribute("totalItems",page.getTotalElements());
+        model.addAttribute("currentPage",pageNum);
+        model.addAttribute("pageSize",pageSize);
+        model.addAttribute("sortBy",sortBy);
         model.addAttribute("listDept",listDept);
+        model.addAttribute("keyword",keyword);
+        session.setAttribute("url","department/" + pageNum + "?keyword=" + keyword);
         return "list_department";
     }
-
     @PostMapping("/addDepartment")
-    public String addDepartment(@Valid @ModelAttribute("department") DepartmentRequest departmentRequest, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String addDepartment(@Valid @ModelAttribute("departmentRequest") DepartmentRequest departmentRequest, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if(departmentService.departmentExists(departmentRequest)) {
-            bindingResult.addError(new FieldError("department","name","Phòng đã tồn tại"));
+            bindingResult.addError(new FieldError("departmentRequest","name","Phòng đã tồn tại"));
         }
         if(!bindingResult.hasErrors()) {
             departmentService.createDepartment(departmentRequest);
-            return "redirect:/department";
+            String url = (String) session.getAttribute("url");
+            return "redirect:/" + url;
         }
-        redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.department", bindingResult);
-        redirectAttributes.addFlashAttribute("department", departmentRequest);
-        return "redirect:/department";
+        redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.departmentRequest", bindingResult);
+        redirectAttributes.addFlashAttribute("departmentRequest", departmentRequest);
+        String url = (String) session.getAttribute("url");
+        return "redirect:/" + url;
     }
 
     @PostMapping("/updateDepartment/{id}")
-    public String updateDepartment(@ModelAttribute("updateDepartment") DepartmentRequest departmentRequest, Model model, @PathVariable Long id, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String updateDepartment(@Valid @ModelAttribute("updateDepartment") DepartmentRequest departmentRequest, @PathVariable Long id, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if(departmentService.departmentExists(departmentRequest)) {
             bindingResult.addError(new FieldError("updateDepartment","name","Phòng đã tồn tại"));
-            model.addAttribute("isShowUpdateModal", true);
-            model.addAttribute("departmentId",id);
+            session.setAttribute("departmentId",id);
         }
         if(!bindingResult.hasErrors()) {
             departmentService.updateDepartment(id,departmentRequest);
-            return "redirect:/department";
+            session.setAttribute("departmentId",id);
+            String url = (String) session.getAttribute("url");
+            return "redirect:/" + url;
         }
         redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.updateDepartment", bindingResult);
         redirectAttributes.addFlashAttribute("updateDepartment", departmentRequest);
-        redirectAttributes.addFlashAttribute("departmentId",id);
-        return "redirect:/department";
+        session.setAttribute("departmentId",id);
+        String url = (String) session.getAttribute("url");
+        return "redirect:/" + url;
 
 
     }
     @PostMapping("/deleteDepartment/{id}")
     public String deleteDepartment(Model model, @PathVariable Long id) {
         departmentService.deleteDepartment(id);
-        List<DepartmentResponse> listDept = departmentService.getAllDepartment();
-        model.addAttribute("listDept",listDept);
-        return "redirect:/department";
+        String url = (String) session.getAttribute("url");
+        return "redirect:/" + url;
     }
 }

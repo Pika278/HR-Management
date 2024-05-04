@@ -8,6 +8,10 @@ import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.repository.DepartmentRepository;
 import com.example.hrm.service.DepartmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -77,10 +81,20 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public List<DepartmentResponse> findByName(String name) {
         List<Department> list = departmentRepository.findByName(name);
-        List<DepartmentResponse> listResponse = new ArrayList<>();
-        for(Department d: list) {
-            listResponse.add(departmentMapper.toDepartmentResponse(d));
+        List<DepartmentResponse> responses = new ArrayList<>();
+        for(Department d : list) {
+            responses.add(departmentMapper.toDepartmentResponse(d));
         }
-        return listResponse;
+        return responses;
+    }
+
+    @Override
+    public Page<DepartmentResponse> findByNamePaging(int pageNumber, int pageSize, String sortBy, String name) {
+        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
+        Page<Department> list = departmentRepository.findByNamePaging(pageable,name);
+
+        Page<DepartmentResponse> responsePage = list.map(departmentMapper::toDepartmentResponse);
+        
+        return responsePage;
     }
 }
