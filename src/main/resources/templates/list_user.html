@@ -40,7 +40,7 @@
             <td th:text="${user.is_active ? 'Đã kích hoạt' : 'Chưa kích hoạt'}">
             </td>
             <td align="center">
-                <a class="btn btn-warning border-dark">&nbsp;Xem</a>
+                <a class="btn btn-warning border-dark" th:href="@{'/user/' + ${user.id}}">&nbsp;Xem</a>
             </td>
         </tr>
         </tbody>

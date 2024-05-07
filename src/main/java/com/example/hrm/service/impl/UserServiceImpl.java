@@ -84,13 +84,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse findById(Long id) {
-        return null;
+        Optional<User> user = userRepository.findById(id);
+        UserResponse userResponse = new UserResponse();
+        if(user.isPresent()) {
+            userResponse = userMapper.toUserResponse(user.get());
+        }
+        return userResponse;
     }
 
-//    @Override
-//    public List<UserResponse> getAllUser() {
-//        return List.of();
-//    }
 
     @Override
     public Page<UserResponse> findByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword) {

@@ -35,7 +35,7 @@ public class UserController {
         this.verifyTokenService = verifyTokenService;
     }
 
-    @GetMapping("/user/{numPage}")
+    @GetMapping("/listUser/{numPage}")
     public String listUSer(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
         int pageSize = 2;
         String sortBy="id";
@@ -48,7 +48,7 @@ public class UserController {
         model.addAttribute("sortBy",sortBy);
         model.addAttribute("listUsers",listUsers);
         model.addAttribute("keyword",keyword);
-        session.setAttribute("url","user/" + pageNum + "?keyword=" + keyword);
+        session.setAttribute("url","listUser/" + pageNum + "?keyword=" + keyword);
         return "list_user";
     }
 
@@ -108,5 +108,14 @@ public class UserController {
         }
 
         return "activation";
+    }
+
+    @GetMapping("/user/{id}")
+    public String getUserDetail(@PathVariable Long id, Model model) {
+        UserResponse userResponse = userService.findById(id);
+        model.addAttribute("user",userResponse);
+        List<Department> listDepartment = departmentService.getAllDepartment();
+        model.addAttribute("listDepartment", listDepartment);
+        return "user_detail";
     }
 }
