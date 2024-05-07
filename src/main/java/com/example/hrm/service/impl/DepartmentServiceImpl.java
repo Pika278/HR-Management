@@ -38,13 +38,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public List<DepartmentResponse> getAllDepartment() {
+    public List<Department> getAllDepartment() {
         List<Department> list = departmentRepository.findAll();
-        List<DepartmentResponse> listResponse = new ArrayList<>();
-        for(Department d: list) {
-            listResponse.add(departmentMapper.toDepartmentResponse(d));
-        }
-        return listResponse;
+        return list;
     }
 
     @Override
@@ -83,7 +79,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         List<Department> list = departmentRepository.findByName(name);
         List<DepartmentResponse> responses = new ArrayList<>();
         for(Department d : list) {
-            responses.add(departmentMapper.toDepartmentResponse(d));
+            responses.add(departmentMapper.departmentToDepartmentResponse(d));
         }
         return responses;
     }
@@ -93,7 +89,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
         Page<Department> list = departmentRepository.findByNamePaging(pageable,name);
 
-        Page<DepartmentResponse> responsePage = list.map(departmentMapper::toDepartmentResponse);
+        Page<DepartmentResponse> responsePage = list.map(departmentMapper::departmentToDepartmentResponse);
         
         return responsePage;
     }

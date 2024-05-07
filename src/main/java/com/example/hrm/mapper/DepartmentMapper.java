@@ -6,5 +6,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface DepartmentMapper {
-    DepartmentResponse toDepartmentResponse(Department department);
+    DepartmentResponse departmentToDepartmentResponse(Department department);
+    Department departmentResponsetoDepartment(DepartmentResponse departmentResponse);
 }

@@ -3,22 +3,22 @@ package com.example.hrm.dto.request;
 import jakarta.validation.constraints.NotBlank;
 
 public class DepartmentRequest {
-    private int id;
+    private Long id;
     @NotBlank(message = "Không được bỏ trống")
     private String name;
     public DepartmentRequest() {
     }
 
-    public DepartmentRequest(int id, String name) {
+    public DepartmentRequest(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="container" style="padding: 20px">
+        <h3 th:text="${title}">TITLE</h3>
+        <p>Chào mừng bạn gia nhập công ty. Click vào link bên dưới để xác thực tài khoản của bạn.</p>
+        <a th:href="${link}" th:text="${link}">LINK</a>
+    </div>
+</body>
+</html>

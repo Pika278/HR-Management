@@ -1,46 +1,33 @@
-package com.example.hrm.entity;
+package com.example.hrm.dto.response;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import com.example.hrm.entity.Department;
+import com.example.hrm.entity.Role;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.util.Date;
 
-@Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class UserResponse {
+    private int id;
     private String email;
-    private String password;
     private String citizenId;
     private String gender;
     private String fullName;
     private LocalDate dateOfBirth;
     private String phoneNumber;
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name="department_id", referencedColumnName = "id")
     private Department department;
-    @Enumerated(EnumType.STRING)
     private Role role;
     private String jobTitle;
     private boolean is_active;
-    @CreationTimestamp
     private Date createdAt;
-    @UpdateTimestamp
     private Date updatedAt;
 
-    public User() {
+    public UserResponse() {
     }
 
-    public User(Long id, String email, String password, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Department department, Role role, String jobTitle, boolean is_active, Date createdAt, Date updatedAt) {
+    public UserResponse(int id, String email, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Department department, Role role, String jobTitle, boolean is_active, Date createdAt, Date updatedAt) {
         this.id = id;
         this.email = email;
-        this.password = password;
         this.citizenId = citizenId;
         this.gender = gender;
         this.fullName = fullName;
@@ -54,16 +41,12 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public String getPassword() {
-        return password;
+    public String getEmail() {
+        return email;
     }
 
     public String getCitizenId() {
@@ -110,20 +93,12 @@ public class User {
         return updatedAt;
     }
 
-    public void setIs_active(boolean is_active) {
-        this.is_active = is_active;
-    }
-
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public void setCitizenId(String citizenId) {
@@ -156,6 +131,10 @@ public class User {
 
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+    }
+
+    public void setIs_active(boolean is_active) {
+        this.is_active = is_active;
     }
 
     public void setCreatedAt(Date createdAt) {

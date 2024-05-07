@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="../static/img/amela.jpg" th:href="@{/img/amela.jpg}">
+    <title>Danh sách phòng ban</title>
+</head>
+<body>
+<div th:replace="~{fragments :: menu}"></div>
+<div class="container">
+    <div>
+        <a th:href="@{/addUser}" class="btn btn-warning border-dark">&nbsp;Thêm nhân viên</a>
+        <form class="form-inline m-3">
+            Filter search: &nbsp;<input type="text" name="keyword" th:value="${keyword}"/>
+            &nbsp;&nbsp
+            <input type="submit" value="Search" class="btn btn-warning border-dark"/>
+        </form>
+    </div>
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="thread">
+        <tr align="center">
+            <th>Mã NV</th>
+            <th>Tên nhân viên</th>
+            <th>CCCD</th>
+            <th>Vị trí</th>
+            <th>Trạng thái</th>
+            <th>Xem chi tiết</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr align="center" th:each="user:${listUsers}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.fullName}"></td>
+            <td th:text="${user.citizenId}"></td>
+            <td th:text="${user.jobTitle}"></td>
+            <td th:text="${user.is_active ? 'Đã kích hoạt' : 'Chưa kích hoạt'}">
+            </td>
+            <td align="center">
+                <a class="btn btn-warning border-dark">&nbsp;Xem</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${totalPages > 1}" th:with="pageUrlPostfix='?keyword=' + ${keyword}">
+        <nav>
+            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/user/'">
+                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${1} + ${pageUrlPostfix}}">
+                        First
+                    </a>
+                </li>
+                <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${currentPage - 1} + ${pageUrlPostfix}}">
+                        Previous
+                    </a>
+                </li>
+                <li th:each="i:${#numbers.sequence(1,totalPages)}" th:class="${currentPage != i ? 'page-item' : 'page-item active'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${i} + ${pageUrlPostfix}}">
+                        [[${i}]]
+                    </a>
+                </li>
+                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${currentPage + 1} + ${pageUrlPostfix}}">
+                        Next
+                    </a>
+                </li>
+                <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}" >
+                    <a class="page-link" th:href="@{${pageUrlPrefix} + ${totalPages} + ${pageUrlPostfix}}">
+                        Last
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

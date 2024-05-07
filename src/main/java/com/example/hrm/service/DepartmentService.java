@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface DepartmentService {
     void createDepartment(DepartmentRequest request);
-    List<DepartmentResponse> getAllDepartment();
+    List<Department> getAllDepartment();
     void updateDepartment(Long id, DepartmentRequest departmentRequest);
     DepartmentResponse findById(Long id);
     void deleteDepartment(Long id);
