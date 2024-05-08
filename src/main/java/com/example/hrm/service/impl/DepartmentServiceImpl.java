@@ -8,6 +8,7 @@ import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.repository.DepartmentRepository;
 import com.example.hrm.service.DepartmentService;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentServiceImpl(DepartmentRepository departmentRepository, DepartmentMapper departmentMapper) {
         this.departmentRepository = departmentRepository;
         this.departmentMapper = departmentMapper;
+    }
+
+    @Transactional
+    @Override
+    public Department saveDepartment(Department department) {
+        return departmentRepository.save(department);
     }
 
     @Override

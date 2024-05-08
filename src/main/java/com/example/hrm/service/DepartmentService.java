@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface DepartmentService {
+    Department saveDepartment(Department department);
     void createDepartment(DepartmentRequest request);
     List<Department> getAllDepartment();
     void updateDepartment(Long id, DepartmentRequest departmentRequest);

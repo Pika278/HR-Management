@@ -16,5 +16,6 @@ public interface UserService {
     Page<UserResponse> findByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword);
     boolean emailExists(String email);
     boolean citizenIdExists(String citizenId);
+    void changeActive(Long id);
 
 }

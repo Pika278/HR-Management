@@ -19,7 +19,7 @@
                 <div class="modal-content">
                     <div class="modal-header">Thêm phòng ban</div>
                     <div class="modal-body">
-                        <form action="#" th:action="@{/addDepartment}" method="post" class="form-container" align="center" th:object="${departmentRequest}">
+                        <form action="#" th:action="@{/department/add}" method="post" class="form-container" align="center" th:object="${departmentRequest}">
                             <input type="text" th:field="*{name}" placeholder="Nhập tên phòng" required/>
                             <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error" c></p>
                             <br/>
@@ -63,7 +63,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">Sửa phòng ban</div>
                                 <div class="modal-body">
-                                    <form th:action="@{'/updateDepartment/' + ${dept.id}}" method="post" class="form-container" align="center" th:object="${updateDepartment}">
+                                    <form th:action="@{'/department/update/' + ${dept.id}}" method="post" class="form-container" align="center" th:object="${updateDepartment}">
                                         <input type="text" th:value="${dept.name}" th:name="name" required/>
                                         <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error" style="color:red"></p>
                                         <br/>
@@ -84,7 +84,7 @@
                                 <div class="modal-header">Xóa phòng ban</div>
                                 <div class="modal-body">
                                     <p>Bạn chắc chắn muốn xóa phòng <span th:text="${dept.name}">value</span> </p>
-                                    <form action="#" th:action="@{'/deleteDepartment/' + ${dept.id}}" method="post" class="form-container" align="center">
+                                    <form action="#" th:action="@{'/department/delete/' + ${dept.id}}" method="post" class="form-container" align="center">
                                         <button type="submit" class="btn btn-warning border-dark">Xóa</button>
                                     </form>
                                 </div>

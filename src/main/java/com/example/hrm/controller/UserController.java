@@ -17,10 +17,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.Timestamp;
 import java.util.List;
-
+@RequestMapping("/user")
 @Controller
 public class UserController {
     private final UserService userService;
@@ -35,9 +36,9 @@ public class UserController {
         this.verifyTokenService = verifyTokenService;
     }
 
-    @GetMapping("/listUser/{numPage}")
+    @GetMapping("/list/{numPage}")
     public String listUSer(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
-        int pageSize = 2;
+        int pageSize = 5;
         String sortBy="id";
         Page<UserResponse> page = userService.findByKeywordPaging(pageNum,pageSize,sortBy,keyword);
         List<UserResponse> listUsers = page.getContent();
@@ -48,11 +49,11 @@ public class UserController {
         model.addAttribute("sortBy",sortBy);
         model.addAttribute("listUsers",listUsers);
         model.addAttribute("keyword",keyword);
-        session.setAttribute("url","listUser/" + pageNum + "?keyword=" + keyword);
+        session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);
         return "list_user";
     }
 
-    @GetMapping("/addUser")
+    @GetMapping("/add")
     public String addUserForm(Model model) {
         UserRequest userRequest = new UserRequest();
         model.addAttribute("user",userRequest);
@@ -61,7 +62,7 @@ public class UserController {
         return "register";
     }
 
-    @PostMapping("/addUser")
+    @PostMapping("/add")
     public String addUser(@Valid @ModelAttribute("user") UserRequest userRequest, BindingResult bindingResult, Model model) {
         if(userService.emailExists(userRequest.getEmail())) {
             bindingResult.addError(new FieldError("user","email","Email đã tồn tại"));
@@ -110,12 +111,54 @@ public class UserController {
         return "activation";
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/{id}")
     public String getUserDetail(@PathVariable Long id, Model model) {
         UserResponse userResponse = userService.findById(id);
         model.addAttribute("user",userResponse);
         List<Department> listDepartment = departmentService.getAllDepartment();
         model.addAttribute("listDepartment", listDepartment);
         return "user_detail";
+    }
+
+    @GetMapping("update/{id}")
+    public String updateUserForm(@PathVariable Long id, Model model) {
+        UserResponse userResponse = userService.findById(id);
+        model.addAttribute("user",userResponse);
+        List<Department> listDepartment = departmentService.getAllDepartment();
+        model.addAttribute("listDepartment", listDepartment);
+        return "update_user";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserRequest userRequest, BindingResult bindingResult, Model model) {
+        UserResponse userResponse = userService.findById(id);
+        if(!userRequest.getEmail().equals(userResponse.getEmail()) && userService.emailExists(userRequest.getEmail())) {
+                bindingResult.addError(new FieldError("user","email","Email đã tồn tại"));
+        }
+        if(!userRequest.getCitizenId().equals(userResponse.getCitizenId()) && userService.citizenIdExists(userRequest.getCitizenId())) {
+            bindingResult.addError(new FieldError("user","citizenId","CCCD đã tồn tại"));
+        }
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("user",userRequest);
+            List<Department> listDepartment = departmentService.getAllDepartment();
+            model.addAttribute("listDepartment", listDepartment);
+            return "update_user";
+        }
+        userService.updateUser(id, userRequest);
+        return "redirect:/user/" + id;
+    }
+
+    @PostMapping("/changeActive/{id}")
+    public String changeActive(@PathVariable("id") Long id) {
+        userService.changeActive(id);
+        String url = (String) session.getAttribute("url");
+        return "redirect:/" + url;
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
+        userService.deleteUser(id);
+        String url = (String) session.getAttribute("url");
+        return "redirect:/" + url;
     }
 }

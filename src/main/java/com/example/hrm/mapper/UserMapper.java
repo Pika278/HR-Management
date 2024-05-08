@@ -5,6 +5,7 @@ import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -18,4 +19,6 @@ public interface UserMapper {
     @Mapping(target = "role", source = "role")
     @Mapping(target = "jobTitle", source = "jobTitle")
     User userRequestToUser(UserRequest userRequest);
+
+    void updateUser(@MappingTarget User user, UserRequest userRequest);
 }

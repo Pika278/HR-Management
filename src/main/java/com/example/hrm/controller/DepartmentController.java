@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-
+@RequestMapping("/department")
 @Controller
 public class DepartmentController {
     private final DepartmentService departmentService;
@@ -31,7 +31,7 @@ public class DepartmentController {
         return "index";
     }
 
-    @GetMapping("/department/{numPage}")
+    @GetMapping("/{numPage}")
     public String listDepartment(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
         if(!model.containsAttribute("departmentRequest")) {
             DepartmentRequest departmentRequest = new DepartmentRequest();
@@ -63,7 +63,7 @@ public class DepartmentController {
         session.setAttribute("url","department/" + pageNum + "?keyword=" + keyword);
         return "list_department";
     }
-    @PostMapping("/addDepartment")
+    @PostMapping("/add")
     public String addDepartment(@Valid @ModelAttribute("departmentRequest") DepartmentRequest departmentRequest, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if(departmentService.departmentExists(departmentRequest)) {
             bindingResult.addError(new FieldError("departmentRequest","name","Phòng đã tồn tại"));
@@ -79,7 +79,7 @@ public class DepartmentController {
         return "redirect:/" + url;
     }
 
-    @PostMapping("/updateDepartment/{id}")
+    @PostMapping("/update/{id}")
     public String updateDepartment(@Valid @ModelAttribute("updateDepartment") DepartmentRequest departmentRequest, @PathVariable Long id, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if(departmentService.departmentExists(departmentRequest)) {
             bindingResult.addError(new FieldError("updateDepartment","name","Phòng đã tồn tại"));
@@ -99,7 +99,7 @@ public class DepartmentController {
 
 
     }
-    @PostMapping("/deleteDepartment/{id}")
+    @PostMapping("/delete/{id}")
     public String deleteDepartment(Model model, @PathVariable Long id) {
         departmentService.deleteDepartment(id);
         String url = (String) session.getAttribute("url");

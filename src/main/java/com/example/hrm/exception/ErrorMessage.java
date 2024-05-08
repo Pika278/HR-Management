@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 //@NoArgsConstructor
 public enum ErrorMessage {
     DEPARTMENT_EXISTED(1001,"Department existed"),
-    DEPARTMENT_NOT_FOUND(1002,"Department not found");
+    DEPARTMENT_NOT_FOUND(1002,"Department not found"),
+    USER_EXISTED(1003,"Department existed"),
+    USER_NOT_FOUND(1004,"User not found");
     private int errorCode;
     private String message;
 

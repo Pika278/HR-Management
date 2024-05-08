@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 public class UserRequest {
+    private Long id;
     @Email
     @NotBlank(message = "Không được bỏ trống")
     private String email;
@@ -26,7 +27,8 @@ public class UserRequest {
     public UserRequest() {
     }
 
-    public UserRequest(String email, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Long departmentId, Role role, String jobTitle, boolean is_active) {
+    public UserRequest(Long id, String email, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Long departmentId, Role role, String jobTitle, boolean is_active) {
+        this.id = id;
         this.email = email;
         this.citizenId = citizenId;
         this.gender = gender;
@@ -37,6 +39,14 @@ public class UserRequest {
         this.role = role;
         this.jobTitle = jobTitle;
         this.is_active = is_active;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public boolean isIs_active() {

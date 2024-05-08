@@ -13,7 +13,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <div>
-        <a th:href="@{/addUser}" class="btn btn-warning border-dark">&nbsp;Thêm nhân viên</a>
+        <a th:href="@{/user/add}" class="btn btn-warning border-dark">&nbsp;Thêm nhân viên</a>
         <form class="form-inline m-3">
             Filter search: &nbsp;<input type="text" name="keyword" th:value="${keyword}"/>
             &nbsp;&nbsp
@@ -37,7 +37,26 @@
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.citizenId}"></td>
             <td th:text="${user.jobTitle}"></td>
-            <td th:text="${user.is_active ? 'Đã kích hoạt' : 'Chưa kích hoạt'}">
+            <td >
+                <span class="btn btn-mute border-dark" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${user.id}" th:text="${user.is_active ? 'Đã kích hoạt' : 'Chưa kích hoạt'}"></span>
+                <div class="modal fade text-center" th:id="'modal' + ${user.id}">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">Thông báo</div>
+                            <div class="modal-body">
+                                <p th:if="${user.is_active}">Bạn chắc chắn muốn khóa tài khoản này chứ</p>
+                                <p th:unless="${user.is_active}">Bạn chắc chắn muốn mở khóa tài khoản này chứ</p>
+                                <form action="#" th:action="@{'/user/changeActive/' + ${user.id}}" method="post" class="form-container" align="center" th:object="${user}">
+                                    <button th:if="${user.is_active}" type="submit" class="btn btn-warning">Khóa</button>
+                                    <button th:unless="${user.is_active}" type="submit" class="btn btn-warning">Mở khóa</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+<!--                                <button type="button" class="btn btn-mute" data-bs-dismiss="modal">Tắt</button>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </td>
             <td align="center">
                 <a class="btn btn-warning border-dark" th:href="@{'/user/' + ${user.id}}">&nbsp;Xem</a>
@@ -48,7 +67,7 @@
 
     <div th:if="${totalPages > 1}" th:with="pageUrlPostfix='?keyword=' + ${keyword}">
         <nav>
-            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/user/'">
+            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/user/list/'">
                 <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}" >
                     <a class="page-link" th:href="@{${pageUrlPrefix} + ${1} + ${pageUrlPostfix}}">
                         First

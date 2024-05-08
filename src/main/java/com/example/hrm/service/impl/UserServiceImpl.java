@@ -5,8 +5,12 @@ import com.example.hrm.dto.response.DepartmentResponse;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Department;
 import com.example.hrm.entity.User;
+import com.example.hrm.entity.VerifyToken;
+import com.example.hrm.exception.AppException;
+import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.mapper.UserMapper;
+import com.example.hrm.repository.DepartmentRepository;
 import com.example.hrm.repository.UserRepository;
 import com.example.hrm.repository.criteria.UserCriteria;
 
@@ -34,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private final DepartmentService departmentService;
     private final DepartmentMapper departmentMapper;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, VerifyTokenService verifyTokenService, EmailService emailService, UserCriteria userCriteria, DepartmentService departmentService, DepartmentMapper  departmentMapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, VerifyTokenService verifyTokenService, EmailService emailService, UserCriteria userCriteria, DepartmentService departmentService, DepartmentMapper departmentMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.verifyTokenService = verifyTokenService;
@@ -52,9 +56,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(UserRequest userRequest) {
+        if(userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new AppException(ErrorMessage.USER_EXISTED);
+        }
         User user = userMapper.userRequestToUser(userRequest);
         user.setIs_active(false);
-//        Long departmentId = departmentService.findById(userRequest.getDepartmentId()).getId();
         DepartmentResponse departmentResponse = departmentService.findById(userRequest.getDepartmentId());
         Department department = departmentMapper.departmentResponsetoDepartment(departmentResponse);
         user.setDepartment(department);
@@ -65,6 +71,9 @@ public class UserServiceImpl implements UserService {
                 verifyTokenService.save(user,token);
                 //send verify email
                 emailService.sendHTMLMail(u);
+                int quantity = department.getQuantity()+1;
+                department.setQuantity(quantity);
+                departmentService.saveDepartment(department);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -74,11 +83,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(Long id, UserRequest userRequest) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            userMapper.updateUser(user,userRequest);
+            DepartmentResponse departmentResponse = departmentService.findById(id);
+            Department department = departmentMapper.departmentResponsetoDepartment(departmentResponse);
+            DepartmentResponse departmentResponse1 = departmentService.findById(userRequest.getDepartmentId());
+            Department department1 = departmentMapper.departmentResponsetoDepartment(departmentResponse1);
+            user.setDepartment(department1);
+            userRepository.save(user);
+            //update department quantity
+            department.setQuantity(department.getQuantity()-1);
+            department1.setQuantity(department1.getQuantity()+1);
+            departmentService.saveDepartment(department);
+            departmentService.saveDepartment(department1);
 
+        }
+        else {
+            throw new AppException(ErrorMessage.USER_NOT_FOUND);
+        }
     }
 
     @Override
     public void deleteUser(Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            VerifyToken verifyToken = verifyTokenService.findByUser(user);
+            verifyTokenService.deleteToken(verifyToken);
+            userRepository.deleteById(id);
+            DepartmentResponse departmentResponse = departmentService.findById(user.getDepartment().getId());
+            Department department = departmentMapper.departmentResponsetoDepartment(departmentResponse);
+            department.setQuantity(department.getQuantity()-1);
+            departmentService.saveDepartment(department);
+        }
+        else {
+            throw new AppException(ErrorMessage.USER_NOT_FOUND);
+        }
 
     }
 
@@ -88,6 +130,7 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = new UserResponse();
         if(user.isPresent()) {
             userResponse = userMapper.toUserResponse(user.get());
+            userResponse.setDepartmentId(user.get().getDepartment().getId());
         }
         return userResponse;
     }
@@ -111,6 +154,19 @@ public class UserServiceImpl implements UserService {
     public boolean citizenIdExists(String citizenId) {
         return userRepository.existsByCitizenId(citizenId);
 
+    }
+
+    @Override
+    public void changeActive(Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setIs_active(!user.isIs_active());
+            userRepository.save(user);
+        }
+        else {
+            throw new AppException(ErrorMessage.USER_NOT_FOUND);
+        }
     }
 
 //    @Override

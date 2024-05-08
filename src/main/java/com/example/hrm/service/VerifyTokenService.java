@@ -11,4 +11,5 @@ public interface VerifyTokenService {
     VerifyToken findByUser(User user);
     VerifyToken findByToken(String token);
     void saveToken(VerifyToken verifyToken);
+    void deleteToken(VerifyToken verifyToken);
 }

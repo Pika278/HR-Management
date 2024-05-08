@@ -45,4 +45,9 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
     public void saveToken(VerifyToken verifyToken) {
         verifyTokenRepository.save(verifyToken);
     }
+
+    @Override
+    public void deleteToken(VerifyToken verifyToken) {
+        verifyTokenRepository.delete(verifyToken);
+    }
 }

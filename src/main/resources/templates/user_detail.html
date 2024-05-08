@@ -16,7 +16,7 @@
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a th:href="@{/}" class="btn btn-warning border-dark">Xem bảng chấm công</a>
         </div>
-        <div class="row g-3">
+    <div class="row g-3">
         <div class="mb-3 col-md-6">
             <label for="exampleInputEmail" class="form-label">Email</label>
             <input th:value="${user.email}" type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" disabled>
@@ -66,14 +66,31 @@
         <div class="mb-3 col-md-6">
             <label for="department" class="form-label">Phòng</label>
             <select class="form-control" id="department" name="departmentId" disabled>
-                <option th:each="d : ${listDepartment}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id==user.department.id}"></option>
+                <option th:each="d : ${listDepartment}" th:value="${d.id}" th:text="${d.name}" th:selected="${d.id==user.departmentId}"></option>
             </select>
         </div>
         <br/>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-            <a th:href="@{/}" class="btn btn-warning border-dark">Chỉnh sửa</a>
-            <a th:href="@{/}" class="btn btn-mute border-dark">Xóa</a>
+            <a th:href="@{'/user/update/' + ${user.id}}" class="btn btn-warning border-dark">Chỉnh sửa</a>
+<!--            <a th:href="@{/}" class="btn btn-danger border-dark">Xóa vĩnh viễn</a>-->
+            <span class="btn btn-mute border-dark" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${user.id}">Xóa vĩnh viễn</span>
+            <div class="modal fade text-center" th:id="'modal' + ${user.id}">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">Thông báo</div>
+                        <div class="modal-body">
+                            <p>Bạn chắc chắn muốn xóa tài khoản này chứ</p>
+                            <form action="#" th:action="@{'/user/delete/' + ${user.id}}" method="post" class="form-container" align="center" th:object="${user}">
+                                <button type="submit" class="btn btn-warning">Xóa</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+<!--                            <button type="button" class="btn btn-mute" data-bs-dismiss="modal">Tắt</button>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         </div>
     </div>

@@ -15,7 +15,7 @@ public class UserResponse {
     private String fullName;
     private LocalDate dateOfBirth;
     private String phoneNumber;
-    private Department department;
+    private Long departmentId;
     private Role role;
     private String jobTitle;
     private boolean is_active;
@@ -25,7 +25,7 @@ public class UserResponse {
     public UserResponse() {
     }
 
-    public UserResponse(int id, String email, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Department department, Role role, String jobTitle, boolean is_active, Date createdAt, Date updatedAt) {
+    public UserResponse(int id, String email, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Long departmentId, Role role, String jobTitle, boolean is_active, Date createdAt, Date updatedAt) {
         this.id = id;
         this.email = email;
         this.citizenId = citizenId;
@@ -33,7 +33,7 @@ public class UserResponse {
         this.fullName = fullName;
         this.dateOfBirth = dateOfBirth;
         this.phoneNumber = phoneNumber;
-        this.department = department;
+        this.departmentId = departmentId;
         this.role = role;
         this.jobTitle = jobTitle;
         this.is_active = is_active;
@@ -69,9 +69,6 @@ public class UserResponse {
         return phoneNumber;
     }
 
-    public Department getDepartment() {
-        return department;
-    }
 
     public Role getRole() {
         return role;
@@ -121,10 +118,6 @@ public class UserResponse {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
     public void setRole(Role role) {
         this.role = role;
     }
@@ -143,5 +136,13 @@ public class UserResponse {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
     }
 }
