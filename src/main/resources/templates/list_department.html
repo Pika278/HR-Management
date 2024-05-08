@@ -54,7 +54,7 @@
             <td th:text="${dept.name}"></td>
             <td th:text="${dept.quantity}"></td>
             <td align="center">
-                <a class="btn btn-warning border-dark">&nbsp;Xem</a>
+                <a th:href="@{'/user/departmentUser/' + ${dept.id} + '/1'}" class="btn btn-warning border-dark">&nbsp;Xem</a>
             </td>
             <td align="center">
                 <span class="fa fa-pencil" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${dept.id}" th:id="'updateDepartment' + ${dept.id}"></span>

@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping("/list/{numPage}")
-    public String listUSer(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
+    public String listUser(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
         int pageSize = 5;
         String sortBy="id";
         Page<UserResponse> page = userService.findByKeywordPaging(pageNum,pageSize,sortBy,keyword);
@@ -160,5 +160,21 @@ public class UserController {
         userService.deleteUser(id);
         String url = (String) session.getAttribute("url");
         return "redirect:/" + url;
+    }
+
+    @GetMapping("/departmentUser/{departmentId}/{numPage}")
+    public String listDepartmentUser(@PathVariable("departmentId") Long departmentId, @PathVariable(name = "numPage") int pageNum, Model model) {
+        int pageSize = 5;
+        String sortBy="id";
+        Page<UserResponse> page = userService.listDepartmentUserPaging(pageNum,pageSize,sortBy,departmentId);
+        List<UserResponse> listUsers = page.getContent();
+        model.addAttribute("totalPages",page.getTotalPages());
+        model.addAttribute("totalItems",page.getTotalElements());
+        model.addAttribute("currentPage",pageNum);
+        model.addAttribute("pageSize",pageSize);
+        model.addAttribute("sortBy",sortBy);
+        model.addAttribute("listUsers",listUsers);
+        session.setAttribute("url","user/departmentUser/"  + departmentId + "/" + pageNum);
+        return "list_department_user";
     }
 }
