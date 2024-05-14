@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
             DepartmentResponse departmentResponse1 = departmentService.findById(userRequest.getDepartmentId());
             Department department1 = departmentMapper.departmentResponsetoDepartment(departmentResponse1);
             user.setDepartment(department1);
-            userRepository.save(user);
+            saveUser(user);
             //update department quantity
             department.setQuantity(department.getQuantity()-1);
             department1.setQuantity(department1.getQuantity()+1);
@@ -170,15 +170,10 @@ public class UserServiceImpl implements UserService {
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setIs_active(!user.isIs_active());
-            userRepository.save(user);
+            saveUser(user);
         }
         else {
             throw new AppException(ErrorMessage.USER_NOT_FOUND);
         }
     }
-
-//    @Override
-//    public boolean userExists(UserRequest userRequest) {
-//        return userRepository.existsByEmail(userRequest.getEmail());
-//    }
 }

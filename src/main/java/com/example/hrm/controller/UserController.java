@@ -12,6 +12,7 @@ import com.example.hrm.service.VerifyTokenService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -52,7 +53,7 @@ public class UserController {
         session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);
         return "list_user";
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/add")
     public String addUserForm(Model model) {
         UserRequest userRequest = new UserRequest();
@@ -61,7 +62,7 @@ public class UserController {
         model.addAttribute("listDepartment",listDepartment);
         return "register";
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/add")
     public String addUser(@Valid @ModelAttribute("user") UserRequest userRequest, BindingResult bindingResult, Model model) {
         if(userService.emailExists(userRequest.getEmail())) {
@@ -108,9 +109,9 @@ public class UserController {
             }
         }
 
-        return "activation";
+        return "activation_error";
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
     public String getUserDetail(@PathVariable Long id, Model model) {
         UserResponse userResponse = userService.findById(id);
@@ -119,7 +120,7 @@ public class UserController {
         model.addAttribute("listDepartment", listDepartment);
         return "user_detail";
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("update/{id}")
     public String updateUserForm(@PathVariable Long id, Model model) {
         UserResponse userResponse = userService.findById(id);
@@ -128,7 +129,7 @@ public class UserController {
         model.addAttribute("listDepartment", listDepartment);
         return "update_user";
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/update/{id}")
     public String updateUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserRequest userRequest, BindingResult bindingResult, Model model) {
         UserResponse userResponse = userService.findById(id);
@@ -147,14 +148,14 @@ public class UserController {
         userService.updateUser(id, userRequest);
         return "redirect:/user/" + id;
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/changeActive/{id}")
     public String changeActive(@PathVariable("id") Long id) {
         userService.changeActive(id);
         String url = (String) session.getAttribute("url");
         return "redirect:/" + url;
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);

@@ -2,45 +2,25 @@ package com.example.hrm.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
+
 @Entity
+@Getter
+@Setter
+@RequiredArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private int quantity;
-
-    public Department() {
-    }
+    @OneToMany(mappedBy = "department")
+    private List<User> users;
 
     public Department(String name, int quantity) {
         this.name = name;
-        this.quantity = quantity;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 }

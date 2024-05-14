@@ -30,7 +30,7 @@ public class EmailServiceImpl implements EmailService {
             String token = verifyToken.getToken();
             Context context = new Context();
             context.setVariable("title","Verify your account");
-            context.setVariable("link", "http://localhost:8080/activation?token=" + token);
+            context.setVariable("link", "http://localhost:8080/user/activation?token=" + token);
             String body = templateEngine.process("verification",context);
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,true);

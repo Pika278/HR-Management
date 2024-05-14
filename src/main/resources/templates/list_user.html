@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -13,7 +14,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <div>
-        <a th:href="@{/user/add}" class="btn btn-warning border-dark">&nbsp;Thêm nhân viên</a>
+        <a th:href="@{/user/add}" class="btn btn-warning border-dark" sec:authorize ="hasAuthority('ADMIN')">&nbsp;Thêm nhân viên</a>
         <form class="form-inline m-3">
             Filter search: &nbsp;<input type="text" name="keyword" th:value="${keyword}"/>
             &nbsp;&nbsp
@@ -28,7 +29,7 @@
             <th>CCCD</th>
             <th>Vị trí</th>
             <th>Trạng thái</th>
-            <th>Xem chi tiết</th>
+            <th sec:authorize ="hasAuthority('ADMIN')">Xem chi tiết</th>
         </tr>
         </thead>
         <tbody>
@@ -37,9 +38,9 @@
             <td th:text="${user.fullName}"></td>
             <td th:text="${user.citizenId}"></td>
             <td th:text="${user.jobTitle}"></td>
-            <td >
+            <td>
                 <span class="btn btn-mute border-dark" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${user.id}" th:text="${user.is_active ? 'Đã kích hoạt' : 'Chưa kích hoạt'}"></span>
-                <div class="modal fade text-center" th:id="'modal' + ${user.id}">
+                <div class="modal fade text-center" th:id="'modal' + ${user.id}" sec:authorize ="hasAuthority('ADMIN')">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">Thông báo</div>
@@ -52,13 +53,12 @@
                                 </form>
                             </div>
                             <div class="modal-footer">
-<!--                                <button type="button" class="btn btn-mute" data-bs-dismiss="modal">Tắt</button>-->
                             </div>
                         </div>
                     </div>
                 </div>
             </td>
-            <td align="center">
+            <td align="center" sec:authorize ="hasAuthority('ADMIN')">
                 <a class="btn btn-warning border-dark" th:href="@{'/user/' + ${user.id}}">&nbsp;Xem</a>
             </td>
         </tr>

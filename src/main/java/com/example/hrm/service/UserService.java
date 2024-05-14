@@ -19,5 +19,4 @@ public interface UserService {
     boolean emailExists(String email);
     boolean citizenIdExists(String citizenId);
     void changeActive(Long id);
-
 }

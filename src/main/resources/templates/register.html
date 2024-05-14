@@ -20,7 +20,7 @@
     <div th:replace="~{fragments :: menu}"></div>
     <div class="container">
         <h1>Thêm nhân viên</h1>
-        <form th:action="@{/addUser}" method="post" th:object="${user}"  class="row g-3">
+        <form th:action="@{/user/add}" method="post" th:object="${user}"  class="row g-3">
             <div class="mb-3 col-md-6">
                 <label for="exampleInputEmail" class="form-label">Email</label>
                 <input th:field="*{email}" type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" required>

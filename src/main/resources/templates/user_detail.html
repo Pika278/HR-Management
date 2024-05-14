@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -9,7 +10,7 @@
     <link rel="icon" type="image/x-icon" href="../static/img/amela.jpg" th:href="@{/img/amela.jpg}">
     <title>Thông tin nhân viên</title>
 </head>
-<body>
+<body sec:authorize ="hasAuthority('ADMIN')">
 <div th:replace="~{fragments :: menu}"></div>
     <div class="container">
     <h1>Thông tin nhân viên</h1>
