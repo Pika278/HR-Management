@@ -1,6 +1,5 @@
 package com.example.hrm.service.impl;
 
-import com.example.hrm.dto.request.UserRequest;
 import com.example.hrm.entity.User;
 import com.example.hrm.entity.VerifyToken;
 import com.example.hrm.repository.VerifyTokenRepository;
@@ -9,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Optional;
+
 @Service
 public class VerifyTokenServiceImpl implements VerifyTokenService {
     private final VerifyTokenRepository verifyTokenRepository;
@@ -33,12 +34,12 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
 
     @Override
     public VerifyToken findByUser(User user) {
-        return verifyTokenRepository.findByUser(user);
+        return verifyTokenRepository.findByUser(user).orElse(null);
     }
 
     @Override
-    public VerifyToken findByToken(String token) {
-        return verifyTokenRepository.findByToken(token);
+    public VerifyToken  findByToken(String token) {
+        return verifyTokenRepository.findByToken(token).orElse(null);
     }
 
     @Override
@@ -49,5 +50,15 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
     @Override
     public void deleteToken(VerifyToken verifyToken) {
         verifyTokenRepository.delete(verifyToken);
+    }
+
+    @Override
+    public void updateToken(User user, String token) {
+       Optional<VerifyToken> verifyToken = verifyTokenRepository.findByUser(user);
+       if(verifyToken.isPresent()) {
+           verifyToken.get().setToken(token);
+           verifyToken.get().setExpireDate(caculateExpiredTime(24*60));
+           saveToken(verifyToken.get());
+       }
     }
 }

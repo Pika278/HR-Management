@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,8 +22,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-        prePostEnabled = true,
+@EnableMethodSecurity(
         securedEnabled = true,
         jsr250Enabled = true)
 public class SecureConfig {
@@ -39,10 +38,10 @@ public class SecureConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(s-> s
-                        .invalidSessionUrl("/login?expired")
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/logout","/authenticate","/user/activation").permitAll()
+                        .requestMatchers("/login","/logout","/authenticate","/user/activation",
+                                "/user/createPassword","/user/forgotPasswordForm","/user/forgotPassword","/user/resetPassword","/user/resetPasswordForm").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                         .permitAll()
                         .anyRequest().authenticated()

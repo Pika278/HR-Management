@@ -15,7 +15,7 @@
             margin: 10px;
             text-align: left;
         }
-        input[type=text], input[type=password] {
+        input {
             display: inline-block;
             width: 200px;
             margin-bottom: 5px;
@@ -24,24 +24,41 @@
             padding: 5px;
             margin-bottom: 10px;
         }
+        .error {
+            color: red;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
 <div class="login" align="center">
+    <div th:if="${param.create_password_success}" class="col-sm-8">
+        <p class="alert alert-info">Tạo mật khẩu thành công, vui lòng đăng nhập tài khoản.</p>
+    </div>
+    <div th:if="${param.reset_password_success}" class="col-sm-8">
+        <p class="alert alert-info">Đặt lại mật khẩu thành công, vui lòng đăng nhập tài khoản.</p>
+    </div>
+    <div th:if="${param.change_password_success}" class="col-sm-8">
+        <p class="alert alert-info">Đổi mật khẩu thành công, vui lòng đăng nhập lại.</p>
+    </div>
+    <div th:if="${param.send_email}" class="col-sm-8">
+        <p class="alert alert-info">Đã gửi link reset password, vui lòng kiểm tra email của bạn.</p>
+    </div>
+
     <h1>Đăng nhập</h1>
     <form th:action="@{/authenticate}" method="post" >
         <label for="email">Email:</label>
-        <input id="email" type="text" name="email"/><br/>
-        <p th:if="${param.error != null}">Email và mật khẩu không hợp lệ</p>
+        <input id="email" type="email" name="email"/><br/>
+        <p class="error" th:if="${param.error != null}">Email và mật khẩu không hợp lệ</p>
 
         <label for="password">Mật khẩu:</label>
         <input id="password" type="password" name="password" ><br/>
-        <p th:if="${param.error != null}">Email và mật khẩu không hợp lệ</p>
+        <p class="error" th:if="${param.error != null}">Email và mật khẩu không hợp lệ</p>
 
         <br/>
         <button type="submit" class="btn btn-warning border-dark">Đăng nhập</button>
     </form>
-    <a th:href="@{/}">Quên mật khẩu? Ấn vào đây</a>
+    <a th:href="@{/user/forgotPasswordForm}">Quên mật khẩu? Ấn vào đây</a>
 </div>
 </body>
 </html>

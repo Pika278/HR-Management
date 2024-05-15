@@ -10,7 +10,7 @@
     <link rel="icon" type="image/x-icon" href="../static/img/amela.jpg" th:href="@{/img/amela.jpg}">
     <title>Thông tin nhân viên</title>
 </head>
-<body sec:authorize ="hasAuthority('ADMIN')">
+<body>
 <div th:replace="~{fragments :: menu}"></div>
     <div class="container">
     <h1>Thông tin nhân viên</h1>
@@ -72,9 +72,8 @@
         </div>
         <br/>
 
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center"  sec:authorize ="hasAuthority('ADMIN')">
             <a th:href="@{'/user/update/' + ${user.id}}" class="btn btn-warning border-dark">Chỉnh sửa</a>
-<!--            <a th:href="@{/}" class="btn btn-danger border-dark">Xóa vĩnh viễn</a>-->
             <span class="btn btn-mute border-dark" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${user.id}">Xóa vĩnh viễn</span>
             <div class="modal fade text-center" th:id="'modal' + ${user.id}">
                 <div class="modal-dialog modal-dialog-centered">
@@ -87,7 +86,6 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-<!--                            <button type="button" class="btn btn-mute" data-bs-dismiss="modal">Tắt</button>-->
                         </div>
                     </div>
                 </div>

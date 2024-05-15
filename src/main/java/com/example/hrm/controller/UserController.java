@@ -1,41 +1,50 @@
 package com.example.hrm.controller;
 
+import com.example.hrm.configuration.CustomUserDetails;
+import com.example.hrm.dto.request.ChangePasswordRequest;
+import com.example.hrm.dto.request.ForgotPasswordRequest;
+import com.example.hrm.dto.request.PasswordRequest;
 import com.example.hrm.dto.request.UserRequest;
-import com.example.hrm.dto.response.DepartmentResponse;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Department;
 import com.example.hrm.entity.User;
 import com.example.hrm.entity.VerifyToken;
+import com.example.hrm.repository.UserRepository;
 import com.example.hrm.service.DepartmentService;
 import com.example.hrm.service.UserService;
 import com.example.hrm.service.VerifyTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
+
+@Slf4j
 @RequestMapping("/user")
 @Controller
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final DepartmentService departmentService;
     private final HttpSession session;
     private final VerifyTokenService verifyTokenService;
-
-    public UserController(UserService userService, DepartmentService departmentService, HttpSession session, VerifyTokenService verifyTokenService) {
-        this.userService = userService;
-        this.departmentService = departmentService;
-        this.session = session;
-        this.verifyTokenService = verifyTokenService;
-    }
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     @GetMapping("/list/{numPage}")
     public String listUser(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
@@ -53,6 +62,7 @@ public class UserController {
         session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);
         return "list_user";
     }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/add")
     public String addUserForm(Model model) {
@@ -62,6 +72,7 @@ public class UserController {
         model.addAttribute("listDepartment",listDepartment);
         return "register";
     }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/add")
     public String addUser(@Valid @ModelAttribute("user") UserRequest userRequest, BindingResult bindingResult, Model model) {
@@ -87,7 +98,7 @@ public class UserController {
     @GetMapping("/activation")
     public String activation(@RequestParam("token") String token, Model model) {
         VerifyToken verifyToken = verifyTokenService.findByToken(token);
-        if(verifyToken == null) {
+        if(verifyToken != null) {
             model.addAttribute("message","Mã xác thực không khả dụng");
         }
         else {
@@ -99,9 +110,9 @@ public class UserController {
                     model.addAttribute("message", "Mã xác thực đã hết hạn");
                 }
                 else {
-                    user.setIs_active(true);
-                    userService.saveUser(user);
-                    model.addAttribute("message", "Tài khoản đã được kích hoạt thành công");
+                    model.addAttribute("token",token);
+                    model.addAttribute("passwordRequest",new PasswordRequest());
+                    return "create_password";
                 }
             }
             else {
@@ -109,17 +120,39 @@ public class UserController {
             }
         }
 
-        return "activation_error";
+        return "activation";
     }
-    @PreAuthorize("hasAuthority('ADMIN')")
+
+    @PostMapping("/createPassword")
+    public String createPassword(@Valid @ModelAttribute PasswordRequest passwordRequest, BindingResult bindingResult, Model model, HttpServletRequest request) {
+        String token = request.getParameter("token");
+        if(!passwordRequest.getPassword().equals(passwordRequest.getConfirmPassword())) {
+            bindingResult.addError(new FieldError("passwordRequest","confirmPassword","Vui lòng nhập mật khẩu giống với ở trên"));
+        }
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("passwordRequest",passwordRequest);
+            return "create_password";
+        }
+
+        VerifyToken verifyToken = verifyTokenService.findByToken(token);
+        if(verifyToken != null) {
+            User user = verifyToken.getUser();
+            userService.createPassword(user,passwordRequest.getPassword());
+            return "redirect:/login?create_password_success";
+        }
+        return "create_password";
+    }
+
+    @PreAuthorize("#id == principal.id || hasAuthority('ADMIN')")
     @GetMapping("/{id}")
-    public String getUserDetail(@PathVariable Long id, Model model) {
+    public String getUserDetail(@PathVariable("id") Long id, Model model) {
         UserResponse userResponse = userService.findById(id);
         model.addAttribute("user",userResponse);
         List<Department> listDepartment = departmentService.getAllDepartment();
         model.addAttribute("listDepartment", listDepartment);
         return "user_detail";
     }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("update/{id}")
     public String updateUserForm(@PathVariable Long id, Model model) {
@@ -129,6 +162,7 @@ public class UserController {
         model.addAttribute("listDepartment", listDepartment);
         return "update_user";
     }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/update/{id}")
     public String updateUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserRequest userRequest, BindingResult bindingResult, Model model) {
@@ -148,6 +182,7 @@ public class UserController {
         userService.updateUser(id, userRequest);
         return "redirect:/user/" + id;
     }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/changeActive/{id}")
     public String changeActive(@PathVariable("id") Long id) {
@@ -155,6 +190,7 @@ public class UserController {
         String url = (String) session.getAttribute("url");
         return "redirect:/" + url;
     }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id) {
@@ -175,7 +211,100 @@ public class UserController {
         model.addAttribute("pageSize",pageSize);
         model.addAttribute("sortBy",sortBy);
         model.addAttribute("listUsers",listUsers);
+        model.addAttribute("departmentId",departmentId);
         session.setAttribute("url","user/departmentUser/"  + departmentId + "/" + pageNum);
         return "list_department_user";
+    }
+
+    @GetMapping("/forgotPasswordForm")
+    public String forgotPasswordForm(Model model) {
+        model.addAttribute("forgotPassword",new ForgotPasswordRequest());
+        return "forgot_password_form";
+    }
+
+    @PostMapping("/forgotPassword")
+    public String forgotPassword(@Valid @ModelAttribute("forgotPassword") ForgotPasswordRequest forgotPasswordRequest, BindingResult bindingResult, Model model) {
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("forgotPasswordRequest",forgotPasswordRequest);
+            return "forgot_password_form";
+        }
+        else {
+            UserResponse userResponse = userService.findByEmail(forgotPasswordRequest.getEmail());
+            if (userResponse == null) {
+                return "redirect:/user/forgotPasswordForm?not_found";
+            }
+            else if(!userResponse.isIs_active()) {
+                return "redirect:/user/forgotPasswordForm?not_active";
+            }
+            else {
+                userService.forgotPassword(forgotPasswordRequest);
+                return "redirect:/login?send_email";
+            }
+        }
+    }
+
+    @GetMapping("/resetPasswordForm")
+    public String resetPasswordForm(@RequestParam("token") String token, Model model) {
+        VerifyToken token1 = verifyTokenService.findByToken(token);
+        if(token1 != null) {
+            model.addAttribute("token", token);
+            model.addAttribute("passwordRequest",new PasswordRequest());
+            return "reset_password_form";
+        }
+        else {
+            return "invalid_token";
+        }
+    }
+
+    @PostMapping("/resetPassword")
+    public String resetPassword(@Valid @ModelAttribute PasswordRequest passwordRequest, BindingResult bindingResult, Model model, HttpServletRequest request) {
+        String token = request.getParameter("token");
+        if(!passwordRequest.getPassword().equals(passwordRequest.getConfirmPassword())) {
+            bindingResult.addError(new FieldError("passwordRequest","confirmPassword","Vui lòng nhập mật khẩu giống với ở trên"));
+        }
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("passwordRequest",passwordRequest);
+            return "reset_password_form";
+        }
+        VerifyToken verifyToken = verifyTokenService.findByToken(token);
+        if(verifyToken != null) {
+            User user = verifyToken.getUser();
+            userService.createPassword(user,passwordRequest.getPassword());
+            return "redirect:/login?reset_password_success";
+        }
+        return "redirect:/login";
+    }
+
+    @PreAuthorize("#id == principal.id")
+    @GetMapping("/changePassword/{id}")
+    public String changePasswordForm(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
+        return "change_password";
+    }
+
+    @PreAuthorize("#id == principal.id")
+    @PostMapping("/changePassword/{id}")
+    public String changePassword(@PathVariable("id") Long id, @Valid @ModelAttribute ChangePasswordRequest changePasswordRequest, BindingResult bindingResult, Model model) {
+        Optional<User> user = userRepository.findById(id);
+        if(user.isEmpty()) {
+            return "redirect:/";
+        }
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("changePasswordRequest",changePasswordRequest);
+            return "change_password";
+        }
+        if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.get().getPassword())) {
+            bindingResult.addError(new FieldError("changePasswordRequest","oldPassword","Sai mật khẩu"));
+        }
+        if(!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmPassword())) {
+            bindingResult.addError(new FieldError("changePasswordRequest","confirmPassword","Vui lòng nhập mật khẩu giống với ở trên"));
+        }
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("changePasswordRequest",changePasswordRequest);
+            return "change_password";
+        }
+        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userService.changePassword(changePasswordRequest,myUserDetails.getUser());
+        return "redirect:/login?change_password_success";
     }
 }

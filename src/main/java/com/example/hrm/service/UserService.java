@@ -1,11 +1,14 @@
 package com.example.hrm.service;
 
+import com.example.hrm.dto.request.ChangePasswordRequest;
+import com.example.hrm.dto.request.ForgotPasswordRequest;
 import com.example.hrm.dto.request.UserRequest;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Department;
 import com.example.hrm.entity.User;
 import org.springframework.data.domain.Page;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface UserService {
@@ -19,4 +22,8 @@ public interface UserService {
     boolean emailExists(String email);
     boolean citizenIdExists(String citizenId);
     void changeActive(Long id);
+    void createPassword(User user, String password);
+    UserResponse findByEmail(String email);
+    void forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
+    void changePassword(ChangePasswordRequest changePasswordRequest, User user);
 }

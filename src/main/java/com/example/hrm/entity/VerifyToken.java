@@ -1,10 +1,14 @@
 package com.example.hrm.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 
 import java.sql.Timestamp;
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class VerifyToken {
     @Id
@@ -12,35 +16,12 @@ public class VerifyToken {
     private int id;
     private String token;
     private Timestamp expireDate;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    public VerifyToken() {
-    }
-
     public VerifyToken(String token, User user) {
-        this.token = token;
         this.user = user;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public Timestamp getExpireDate() {
-        return expireDate;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setExpireDate(Timestamp expireDate) {
-        this.expireDate = expireDate;
+        this.token = token;
     }
 }

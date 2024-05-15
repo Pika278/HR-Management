@@ -1,5 +1,7 @@
 package com.example.hrm.service.impl;
 
+import com.example.hrm.dto.request.ChangePasswordRequest;
+import com.example.hrm.dto.request.ForgotPasswordRequest;
 import com.example.hrm.dto.request.UserRequest;
 import com.example.hrm.dto.response.DepartmentResponse;
 import com.example.hrm.dto.response.UserResponse;
@@ -10,7 +12,6 @@ import com.example.hrm.exception.AppException;
 import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.mapper.UserMapper;
-import com.example.hrm.repository.DepartmentRepository;
 import com.example.hrm.repository.UserRepository;
 import com.example.hrm.repository.criteria.UserCriteria;
 
@@ -19,17 +20,25 @@ import com.example.hrm.service.EmailService;
 import com.example.hrm.service.UserService;
 import com.example.hrm.service.VerifyTokenService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.security.Principal;
 import java.util.Optional;
 import java.util.UUID;
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final VerifyTokenService verifyTokenService;
@@ -37,16 +46,7 @@ public class UserServiceImpl implements UserService {
     private final UserCriteria userCriteria;
     private final DepartmentService departmentService;
     private final DepartmentMapper departmentMapper;
-
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, VerifyTokenService verifyTokenService, EmailService emailService, UserCriteria userCriteria, DepartmentService departmentService, DepartmentMapper departmentMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.verifyTokenService = verifyTokenService;
-        this.emailService = emailService;
-        this.userCriteria = userCriteria;
-        this.departmentService = departmentService;
-        this.departmentMapper = departmentMapper;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
@@ -175,5 +175,45 @@ public class UserServiceImpl implements UserService {
         else {
             throw new AppException(ErrorMessage.USER_NOT_FOUND);
         }
+    }
+
+    @Override
+    public void createPassword(User user, String password) {
+        user.setPassword(passwordEncoder.encode(password));
+        user.setIs_active(true);
+        VerifyToken token = verifyTokenService.findByUser(user);
+        verifyTokenService.deleteToken(token);
+        saveUser(user);
+    }
+
+    @Override
+    public UserResponse findByEmail(String email) {
+       User user = userRepository.findByEmail(email).orElse(null);
+       return userMapper.toUserResponse(user);
+    }
+
+    @Async
+    @Override
+    public void forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        UserResponse userResponse = findByEmail(forgotPasswordRequest.getEmail());
+        User user = userMapper.userResponseToUser(userResponse);
+        try {
+            String token = UUID.randomUUID().toString();
+            verifyTokenService.save(user,token);
+            //send email
+            emailService.sendForgotPasswordMail(user);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequest changePasswordRequest, User user) {
+        if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+            throw new IllegalStateException("Wrong password");
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        saveUser(user);
     }
 }
