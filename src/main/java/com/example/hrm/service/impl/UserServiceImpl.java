@@ -146,6 +146,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<UserResponse> findUserActiveByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword) {
+        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
+        Page<User> list = userCriteria.findUserActiveByKeyword(pageable,keyword);
+        Page<UserResponse> responsePage = list.map(userMapper::toUserResponse);
+        return responsePage;
+    }
+
+    @Override
     public Page<UserResponse> listDepartmentUserPaging(int pageNumber, int pageSize, String sortBy, Long departmentId) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
         Page<User> list = userRepository.listDepartmentUser(pageable,departmentId);

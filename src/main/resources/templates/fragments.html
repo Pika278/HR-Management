@@ -43,8 +43,8 @@
                         <span class="nav-link dropdown-toggle clickable-dropdown"  id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" th:text="${#authentication.principal.fullName} + ' account'">
                         </span>
                         <div class="dropdown-menu bg-warning" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item nav-link" th:href="@{'/user/' + ${#authentication.principal.id}}">Thông tin tài khoản</a>
-                            <a class="dropdown-item nav-link" th:href="@{'/user/changePassword/' + ${#authentication.principal.id}}">Đổi mật khẩu</a>
+                            <a class="dropdown-item nav-link" th:href="@{/user/profile}">Thông tin tài khoản</a>
+                            <a class="dropdown-item nav-link" th:href="@{/user/changePassword}">Đổi mật khẩu</a>
                             <a class="dropdown-item nav-link" th:href="@{/logout}">Đăng xuất</a>
                         </div>
                     </li>

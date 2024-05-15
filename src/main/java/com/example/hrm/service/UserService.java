@@ -18,6 +18,7 @@ public interface UserService {
     void deleteUser(Long id);
     UserResponse findById(Long id);
     Page<UserResponse> findByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword);
+    Page<UserResponse> findUserActiveByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword);
     Page<UserResponse> listDepartmentUserPaging(int pageNumber, int pageSize, String sortBy, Long departmentId);
     boolean emailExists(String email);
     boolean citizenIdExists(String citizenId);

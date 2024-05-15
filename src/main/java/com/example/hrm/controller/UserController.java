@@ -7,6 +7,7 @@ import com.example.hrm.dto.request.PasswordRequest;
 import com.example.hrm.dto.request.UserRequest;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Department;
+import com.example.hrm.entity.Role;
 import com.example.hrm.entity.User;
 import com.example.hrm.entity.VerifyToken;
 import com.example.hrm.repository.UserRepository;
@@ -48,9 +49,19 @@ public class UserController {
 
     @GetMapping("/list/{numPage}")
     public String listUser(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
+        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
+
         int pageSize = 5;
         String sortBy="id";
-        Page<UserResponse> page = userService.findByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+        Page<UserResponse> page;
+        if(userResponse.getRole() == Role.ADMIN) {
+            page = userService.findByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+        }
+        else {
+            page = userService.findUserActiveByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+
+        }
         List<UserResponse> listUsers = page.getContent();
         model.addAttribute("totalPages",page.getTotalPages());
         model.addAttribute("totalItems",page.getTotalElements());
@@ -62,6 +73,23 @@ public class UserController {
         session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);
         return "list_user";
     }
+
+//    @GetMapping("/list/{numPage}")
+//    public String listUserActive(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
+//        int pageSize = 5;
+//        String sortBy="id";
+//        Page<UserResponse> page = userService.findUserActiveByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+//        List<UserResponse> listUsers = page.getContent();
+//        model.addAttribute("totalPages",page.getTotalPages());
+//        model.addAttribute("totalItems",page.getTotalElements());
+//        model.addAttribute("currentPage",pageNum);
+//        model.addAttribute("pageSize",pageSize);
+//        model.addAttribute("sortBy",sortBy);
+//        model.addAttribute("listUsers",listUsers);
+//        model.addAttribute("keyword",keyword);
+//        session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);
+//        return "list_user";
+//    }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/add")
@@ -143,10 +171,20 @@ public class UserController {
         return "create_password";
     }
 
-    @PreAuthorize("#id == principal.id || hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
     public String getUserDetail(@PathVariable("id") Long id, Model model) {
         UserResponse userResponse = userService.findById(id);
+        model.addAttribute("user",userResponse);
+        List<Department> listDepartment = departmentService.getAllDepartment();
+        model.addAttribute("listDepartment", listDepartment);
+        return "user_detail";
+    }
+
+    @GetMapping("/profile")
+    public String getUserProfile(Model model) {
+        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
         model.addAttribute("user",userResponse);
         List<Department> listDepartment = departmentService.getAllDepartment();
         model.addAttribute("listDepartment", listDepartment);
@@ -275,25 +313,21 @@ public class UserController {
         return "redirect:/login";
     }
 
-    @PreAuthorize("#id == principal.id")
-    @GetMapping("/changePassword/{id}")
-    public String changePasswordForm(@PathVariable("id") Long id, Model model) {
+    @GetMapping("/changePassword")
+    public String changePasswordForm(Model model) {
         model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
         return "change_password";
     }
 
-    @PreAuthorize("#id == principal.id")
-    @PostMapping("/changePassword/{id}")
-    public String changePassword(@PathVariable("id") Long id, @Valid @ModelAttribute ChangePasswordRequest changePasswordRequest, BindingResult bindingResult, Model model) {
-        Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()) {
-            return "redirect:/";
-        }
+    @PostMapping("/changePassword")
+    public String changePassword(@Valid @ModelAttribute ChangePasswordRequest changePasswordRequest, BindingResult bindingResult, Model model) {
+        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = myUserDetails.getUser();
         if(bindingResult.hasErrors()) {
             model.addAttribute("changePasswordRequest",changePasswordRequest);
             return "change_password";
         }
-        if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.get().getPassword())) {
+        if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
             bindingResult.addError(new FieldError("changePasswordRequest","oldPassword","Sai mật khẩu"));
         }
         if(!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmPassword())) {
@@ -303,8 +337,7 @@ public class UserController {
             model.addAttribute("changePasswordRequest",changePasswordRequest);
             return "change_password";
         }
-        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        userService.changePassword(changePasswordRequest,myUserDetails.getUser());
+        userService.changePassword(changePasswordRequest,user);
         return "redirect:/login?change_password_success";
     }
 }

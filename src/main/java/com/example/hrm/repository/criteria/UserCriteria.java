@@ -42,4 +42,49 @@ public class UserCriteria {
 
         return new PageImpl<User>(query.getResultList(), pageable, totalRows);
     }
+
+    public Page<User> findUserActiveByKeyword(Pageable pageable, String keyword) {
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> userRoot = criteriaQuery.from(User.class);
+        criteriaQuery.select(userRoot)
+                .where(
+                        criteriaBuilder.and(
+                                criteriaBuilder.or(
+                                        criteriaBuilder.like(userRoot.get("fullName"),"%" + keyword + "%"),
+                                        criteriaBuilder.like(userRoot.get("citizenId"),"%" + keyword + "%"),
+                                        criteriaBuilder.like(userRoot.get("jobTitle"),"%" + keyword + "%")
+                                ),
+                                criteriaBuilder.equal(userRoot.get("is_active"),true)
+                        )
+
+
+                );
+
+        TypedQuery<User> query = em.createQuery(criteriaQuery);
+        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+        query.setMaxResults(pageable.getPageSize());
+        Long totalRows = caculateCountActive(keyword);
+        return new PageImpl<User>(query.getResultList(), pageable, totalRows);
+    }
+
+    public Long caculateCountActive(String keyword) {
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = criteriaBuilder.createQuery(Long.class);
+        Root<User> userRoot = cq.from(User.class);
+
+        cq.select(criteriaBuilder.count(userRoot)).where(
+                criteriaBuilder.and(
+                        criteriaBuilder.or(
+                                criteriaBuilder.like(userRoot.get("fullName"),"%" + keyword + "%"),
+                                criteriaBuilder.like(userRoot.get("citizenId"),"%" + keyword + "%"),
+                                criteriaBuilder.like(userRoot.get("jobTitle"),"%" + keyword + "%")
+                        ),
+                        criteriaBuilder.equal(userRoot.get("is_active"),true)
+                )
+        );
+
+        Long totalRows = em.createQuery(cq).getSingleResult();
+        return totalRows;
+    }
 }
