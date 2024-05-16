@@ -15,11 +15,11 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private int quantity;
+    private Long quantity;
     @OneToMany(mappedBy = "department")
     private List<User> users;
 
-    public Department(String name, int quantity) {
+    public Department(String name, Long quantity) {
         this.name = name;
         this.quantity = quantity;
     }

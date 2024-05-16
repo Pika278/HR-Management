@@ -21,7 +21,7 @@
                     <div class="modal-body">
                         <form action="#" th:action="@{/department/add}" method="post" class="form-container" align="center" th:object="${departmentRequest}">
                             <input type="text" th:field="*{name}" placeholder="Nhập tên phòng" required/>
-                            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error" c></p>
+                            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></p>
                             <br/>
                             <button type="submit" class="btn btn-warning">Thêm</button>
                         </form>

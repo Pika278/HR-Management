@@ -7,8 +7,11 @@ import com.example.hrm.exception.AppException;
 import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.repository.DepartmentRepository;
+import com.example.hrm.repository.UserRepository;
+import com.example.hrm.repository.criteria.DepartmentCriteria;
 import com.example.hrm.service.DepartmentService;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,19 +23,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
-
-    public DepartmentServiceImpl(DepartmentRepository departmentRepository, DepartmentMapper departmentMapper) {
-        this.departmentRepository = departmentRepository;
-        this.departmentMapper = departmentMapper;
-    }
+    private final UserRepository userRepository;
+    private final DepartmentCriteria departmentCriteria;
 
     @Transactional
     @Override
-    public Department saveDepartment(Department department) {
-        return departmentRepository.save(department);
+    public void saveDepartment(Department department) {
+        departmentRepository.save(department);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         if(departmentRepository.existsByName(request.getName())) {
             throw new AppException(ErrorMessage.DEPARTMENT_EXISTED);
         }
-        Department department = new Department(request.getName(),0);
+        Department department = new Department(request.getName(), 0L);
         departmentRepository.save(department);
     }
 
@@ -82,22 +83,19 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public List<DepartmentResponse> findByName(String name) {
-        List<Department> list = departmentRepository.findByName(name);
-        List<DepartmentResponse> responses = new ArrayList<>();
-        for(Department d : list) {
-            responses.add(departmentMapper.departmentToDepartmentResponse(d));
-        }
-        return responses;
-    }
-
-    @Override
     public Page<DepartmentResponse> findByNamePaging(int pageNumber, int pageSize, String sortBy, String name) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
         Page<Department> list = departmentRepository.findByNamePaging(pageable,name);
 
         Page<DepartmentResponse> responsePage = list.map(departmentMapper::departmentToDepartmentResponse);
         
+        return responsePage;
+    }
+
+    @Override
+    public Page<DepartmentResponse> findByNameActivePaging(int pageNumber, int pageSize, String sortBy, String name) {
+        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
+        Page<DepartmentResponse> responsePage = departmentCriteria.getDepartmentsWithActiveUsers(pageable,name);
         return responsePage;
     }
 }

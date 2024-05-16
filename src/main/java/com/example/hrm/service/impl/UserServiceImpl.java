@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
             userMapper.updateUser(user,userRequest);
-            DepartmentResponse departmentResponse = departmentService.findById(id);
+            DepartmentResponse departmentResponse = departmentService.findById(user.getDepartment().getId());
             Department department = departmentMapper.departmentResponsetoDepartment(departmentResponse);
             DepartmentResponse departmentResponse1 = departmentService.findById(userRequest.getDepartmentId());
             Department department1 = departmentMapper.departmentResponsetoDepartment(departmentResponse1);

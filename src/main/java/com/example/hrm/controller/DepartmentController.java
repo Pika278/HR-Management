@@ -1,12 +1,17 @@
 package com.example.hrm.controller;
 
+import com.example.hrm.configuration.CustomUserDetails;
 import com.example.hrm.dto.request.DepartmentRequest;
 import com.example.hrm.dto.response.DepartmentResponse;
-import com.example.hrm.entity.Department;
+import com.example.hrm.dto.response.UserResponse;
+import com.example.hrm.entity.Role;
 import com.example.hrm.service.DepartmentService;
+import com.example.hrm.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,15 +22,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 @RequestMapping("/department")
 @Controller
+@RequiredArgsConstructor
 public class DepartmentController {
     private final DepartmentService departmentService;
     private final HttpSession session;
-
-    public DepartmentController(DepartmentService departmentService, HttpSession session) {
-        this.departmentService = departmentService;
-        this.session = session;
-    }
-
+    private final UserService userService;
     @GetMapping("/")
     public String home() {
         return "index";
@@ -49,9 +50,18 @@ public class DepartmentController {
             long id = (long) session.getAttribute("departmentId");
             model.addAttribute("departmentId",id);
         }
+        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
+        Page<DepartmentResponse> page;
         int pageSize = 5;
         String sortBy="id";
-        Page<DepartmentResponse> page = departmentService.findByNamePaging(pageNum,pageSize,sortBy,keyword);
+        if(userResponse.getRole() == Role.ADMIN) {
+            page = departmentService.findByNamePaging(pageNum,pageSize,sortBy,keyword);
+        }
+        else {
+            page = departmentService.findByNameActivePaging(pageNum,pageSize,sortBy,keyword);
+        }
+
         List<DepartmentResponse> listDept = page.getContent();
         model.addAttribute("totalPages",page.getTotalPages());
         model.addAttribute("totalItems",page.getTotalElements());
