@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Date;
 
 public class UserResponse {
-    private int id;
+    private Long id;
     private String email;
     private String citizenId;
     private String gender;
@@ -25,7 +25,7 @@ public class UserResponse {
     public UserResponse() {
     }
 
-    public UserResponse(int id, String email, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Long departmentId, Role role, String jobTitle, boolean is_active, Date createdAt, Date updatedAt) {
+    public UserResponse(Long id, String email, String citizenId, String gender, String fullName, LocalDate dateOfBirth, String phoneNumber, Long departmentId, Role role, String jobTitle, boolean is_active, Date createdAt, Date updatedAt) {
         this.id = id;
         this.email = email;
         this.citizenId = citizenId;
@@ -41,7 +41,7 @@ public class UserResponse {
         this.updatedAt = updatedAt;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -90,7 +90,7 @@ public class UserResponse {
         return updatedAt;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

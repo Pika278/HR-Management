@@ -36,9 +36,7 @@ public class UserCriteria {
         query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
         query.setMaxResults(pageable.getPageSize());
 
-        CriteriaQuery<Long> cq = criteriaBuilder.createQuery(Long.class);
-        cq.select(criteriaBuilder.count(cq.from(User.class)));
-        Long totalRows = em.createQuery(cq).getSingleResult();
+        Long totalRows = caculateCountByKeyWord(keyword);
 
         return new PageImpl<User>(query.getResultList(), pageable, totalRows);
     }
@@ -64,11 +62,29 @@ public class UserCriteria {
         TypedQuery<User> query = em.createQuery(criteriaQuery);
         query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
         query.setMaxResults(pageable.getPageSize());
-        Long totalRows = caculateCountActive(keyword);
+        Long totalRows = caculateCountActiveByKeyWord(keyword);
         return new PageImpl<User>(query.getResultList(), pageable, totalRows);
     }
 
-    public Long caculateCountActive(String keyword) {
+    public Long caculateCountByKeyWord(String keyword) {
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = criteriaBuilder.createQuery(Long.class);
+        Root<User> userRoot = cq.from(User.class);
+
+        cq.select(criteriaBuilder.count(userRoot))
+                .where(
+                        criteriaBuilder.or(
+                                criteriaBuilder.like(userRoot.get("fullName"),"%" + keyword + "%"),
+                                criteriaBuilder.like(userRoot.get("citizenId"),"%" + keyword + "%"),
+                                criteriaBuilder.like(userRoot.get("jobTitle"),"%" + keyword + "%")
+                        )
+                );
+
+        Long totalRows = em.createQuery(cq).getSingleResult();
+        return totalRows;
+    }
+
+    public Long caculateCountActiveByKeyWord(String keyword) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = criteriaBuilder.createQuery(Long.class);
         Root<User> userRoot = cq.from(User.class);

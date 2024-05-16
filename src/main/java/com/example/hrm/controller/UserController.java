@@ -1,10 +1,7 @@
 package com.example.hrm.controller;
 
 import com.example.hrm.configuration.CustomUserDetails;
-import com.example.hrm.dto.request.ChangePasswordRequest;
-import com.example.hrm.dto.request.ForgotPasswordRequest;
-import com.example.hrm.dto.request.PasswordRequest;
-import com.example.hrm.dto.request.UserRequest;
+import com.example.hrm.dto.request.*;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Department;
 import com.example.hrm.entity.Role;
@@ -73,23 +70,6 @@ public class UserController {
         session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);
         return "list_user";
     }
-
-//    @GetMapping("/list/{numPage}")
-//    public String listUserActive(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
-//        int pageSize = 5;
-//        String sortBy="id";
-//        Page<UserResponse> page = userService.findUserActiveByKeywordPaging(pageNum,pageSize,sortBy,keyword);
-//        List<UserResponse> listUsers = page.getContent();
-//        model.addAttribute("totalPages",page.getTotalPages());
-//        model.addAttribute("totalItems",page.getTotalElements());
-//        model.addAttribute("currentPage",pageNum);
-//        model.addAttribute("pageSize",pageSize);
-//        model.addAttribute("sortBy",sortBy);
-//        model.addAttribute("listUsers",listUsers);
-//        model.addAttribute("keyword",keyword);
-//        session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);
-//        return "list_user";
-//    }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/add")
@@ -203,11 +183,8 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable Long id, @Valid @ModelAttribute("user") UserRequest userRequest, BindingResult bindingResult, Model model) {
+    public String updateUser(@PathVariable Long id, @Valid @ModelAttribute("user") UpdateUserRequest userRequest, BindingResult bindingResult, Model model) {
         UserResponse userResponse = userService.findById(id);
-        if(!userRequest.getEmail().equals(userResponse.getEmail()) && userService.emailExists(userRequest.getEmail())) {
-                bindingResult.addError(new FieldError("user","email","Email đã tồn tại"));
-        }
         if(!userRequest.getCitizenId().equals(userResponse.getCitizenId()) && userService.citizenIdExists(userRequest.getCitizenId())) {
             bindingResult.addError(new FieldError("user","citizenId","CCCD đã tồn tại"));
         }
@@ -239,9 +216,18 @@ public class UserController {
 
     @GetMapping("/departmentUser/{departmentId}/{numPage}")
     public String listDepartmentUser(@PathVariable("departmentId") Long departmentId, @PathVariable(name = "numPage") int pageNum, Model model) {
+        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
+
         int pageSize = 5;
         String sortBy="id";
-        Page<UserResponse> page = userService.listDepartmentUserPaging(pageNum,pageSize,sortBy,departmentId);
+        Page<UserResponse> page;
+        if(userResponse.getRole() == Role.ADMIN) {
+            page = userService.listDepartmentUserPaging(pageNum,pageSize,sortBy,departmentId);
+        }
+        else {
+            page = userService.listDepartmentUserActivePaging(pageNum,pageSize,sortBy,departmentId);
+        }
         List<UserResponse> listUsers = page.getContent();
         model.addAttribute("totalPages",page.getTotalPages());
         model.addAttribute("totalItems",page.getTotalElements());

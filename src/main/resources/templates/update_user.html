@@ -22,7 +22,7 @@
     <form th:action="@{'/user/update/' + ${user.id}}"  th:object="${user}"  method="post" class="row g-3">
         <div class="mb-3 col-md-6">
             <label for="exampleInputEmail" class="form-label">Email</label>
-            <input th:field="*{email}" type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" disabled>
+            <input th:value="*{email}" type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" disabled>
             <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error"></p>
         </div>
         <div class="mb-3 col-md-6">

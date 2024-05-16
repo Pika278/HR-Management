@@ -1,5 +1,6 @@
 package com.example.hrm.mapper;
 
+import com.example.hrm.dto.request.UpdateUserRequest;
 import com.example.hrm.dto.request.UserRequest;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.User;
@@ -21,5 +22,5 @@ public interface UserMapper {
     User userRequestToUser(UserRequest userRequest);
     User userResponseToUser(UserResponse userResponse);
 
-    void updateUser(@MappingTarget User user, UserRequest userRequest);
+    void updateUser(@MappingTarget User user, UpdateUserRequest userRequest);
 }

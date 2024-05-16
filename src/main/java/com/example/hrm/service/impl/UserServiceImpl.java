@@ -1,7 +1,10 @@
 package com.example.hrm.service.impl;
 
+import com.example.hrm.configuration.CustomUserDetails;
+import com.example.hrm.configuration.CustomUserDetailsService;
 import com.example.hrm.dto.request.ChangePasswordRequest;
 import com.example.hrm.dto.request.ForgotPasswordRequest;
+import com.example.hrm.dto.request.UpdateUserRequest;
 import com.example.hrm.dto.request.UserRequest;
 import com.example.hrm.dto.response.DepartmentResponse;
 import com.example.hrm.dto.response.UserResponse;
@@ -29,6 +32,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +53,7 @@ public class UserServiceImpl implements UserService {
     private final DepartmentService departmentService;
     private final DepartmentMapper departmentMapper;
     private final PasswordEncoder passwordEncoder;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Transactional
     @Override
@@ -71,7 +78,7 @@ public class UserServiceImpl implements UserService {
                 verifyTokenService.save(user,token);
                 //send verify email
                 emailService.sendHTMLMail(u);
-                int quantity = department.getQuantity()+1;
+                Long quantity = department.getQuantity()+1;
                 department.setQuantity(quantity);
                 departmentService.saveDepartment(department);
             }
@@ -82,7 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(Long id, UserRequest userRequest) {
+    public void updateUser(Long id, UpdateUserRequest userRequest) {
         Optional<User> optionalUser = userRepository.findById(id);
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -98,7 +105,13 @@ public class UserServiceImpl implements UserService {
             department1.setQuantity(department1.getQuantity()+1);
             departmentService.saveDepartment(department);
             departmentService.saveDepartment(department1);
-
+            CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if(myUserDetails.getUser().getId().equals(user.getId())) {
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         else {
             throw new AppException(ErrorMessage.USER_NOT_FOUND);
@@ -157,6 +170,14 @@ public class UserServiceImpl implements UserService {
     public Page<UserResponse> listDepartmentUserPaging(int pageNumber, int pageSize, String sortBy, Long departmentId) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
         Page<User> list = userRepository.listDepartmentUser(pageable,departmentId);
+        Page<UserResponse> responsePage = list.map(userMapper::toUserResponse);
+        return responsePage;
+    }
+
+    @Override
+    public Page<UserResponse> listDepartmentUserActivePaging(int pageNumber, int pageSize, String sortBy, Long departmentId) {
+        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
+        Page<User> list = userRepository.listDepartmentUserActive(pageable,departmentId);
         Page<UserResponse> responsePage = list.map(userMapper::toUserResponse);
         return responsePage;
     }
