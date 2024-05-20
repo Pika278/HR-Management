@@ -27,7 +27,6 @@ import java.util.Optional;
 public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
-    private final UserRepository userRepository;
     private final DepartmentCriteria departmentCriteria;
 
     @Transactional
@@ -47,8 +46,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<Department> getAllDepartment() {
-        List<Department> list = departmentRepository.findAll();
-        return list;
+        return departmentRepository.findAll();
     }
 
     @Override
@@ -67,9 +65,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public DepartmentResponse findById(Long id) {
         Optional<Department> optionalDepartment = departmentRepository.findById(id);
-        Department department = optionalDepartment.get();
-        DepartmentResponse response = new DepartmentResponse(department.getId(),department.getName(),department.getQuantity());
-        return response;
+        if(optionalDepartment.isPresent()) {
+            Department department = optionalDepartment.get();
+            return new DepartmentResponse(department.getId(), department.getName(), department.getQuantity());
+        }
+        else {
+            throw new AppException(ErrorMessage.DEPARTMENT_NOT_FOUND);
+        }
     }
 
     @Override
@@ -87,15 +89,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
         Page<Department> list = departmentRepository.findByNamePaging(pageable,name);
 
-        Page<DepartmentResponse> responsePage = list.map(departmentMapper::departmentToDepartmentResponse);
-        
-        return responsePage;
+        return list.map(departmentMapper::departmentToDepartmentResponse);
     }
 
     @Override
     public Page<DepartmentResponse> findByNameActivePaging(int pageNumber, int pageSize, String sortBy, String name) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
-        Page<DepartmentResponse> responsePage = departmentCriteria.getDepartmentsWithActiveUsers(pageable,name);
-        return responsePage;
+        return departmentCriteria.getDepartmentsWithActiveUsers(pageable,name);
     }
 }

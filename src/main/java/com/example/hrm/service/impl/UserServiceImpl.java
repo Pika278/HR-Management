@@ -15,6 +15,7 @@ import com.example.hrm.exception.AppException;
 import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.mapper.UserMapper;
+import com.example.hrm.repository.DepartmentRepository;
 import com.example.hrm.repository.UserRepository;
 import com.example.hrm.repository.criteria.UserCriteria;
 
@@ -37,8 +38,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.security.Principal;
 import java.util.Optional;
 import java.util.UUID;
 @Service
@@ -54,13 +53,9 @@ public class UserServiceImpl implements UserService {
     private final DepartmentMapper departmentMapper;
     private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
+    private final DepartmentRepository departmentRepository;
 
     @Transactional
-    @Override
-    public User saveUser(User user) {
-        return userRepository.save(user);
-    }
-
     @Override
     public void createUser(UserRequest userRequest) {
         if(userRepository.existsByEmail(userRequest.getEmail())) {
@@ -68,43 +63,44 @@ public class UserServiceImpl implements UserService {
         }
         User user = userMapper.userRequestToUser(userRequest);
         user.setIs_active(false);
-        DepartmentResponse departmentResponse = departmentService.findById(userRequest.getDepartmentId());
-        Department department = departmentMapper.departmentResponsetoDepartment(departmentResponse);
-        user.setDepartment(department);
-        Optional<User> saved = Optional.of(saveUser(user));
-        saved.ifPresent(u -> {
+        Optional<Department> department = departmentRepository.findById(userRequest.getDepartmentId());
+        if(department.isPresent()) {
+            user.setDepartment(department.orElse(null));
+            userRepository.save(user);
             try {
                 String token = UUID.randomUUID().toString();
                 verifyTokenService.save(user,token);
                 //send verify email
-                emailService.sendHTMLMail(u);
-                Long quantity = department.getQuantity()+1;
-                department.setQuantity(quantity);
-                departmentService.saveDepartment(department);
+                emailService.sendHTMLMail(user);
+                Long quantity = department.get().getQuantity()+1;
+                department.get().setQuantity(quantity);
+                departmentService.saveDepartment(department.orElse(null));
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
-        });
+        }
     }
-
+    @Transactional
     @Override
     public void updateUser(Long id, UpdateUserRequest userRequest) {
         Optional<User> optionalUser = userRepository.findById(id);
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
             userMapper.updateUser(user,userRequest);
-            DepartmentResponse departmentResponse = departmentService.findById(user.getDepartment().getId());
-            Department department = departmentMapper.departmentResponsetoDepartment(departmentResponse);
-            DepartmentResponse departmentResponse1 = departmentService.findById(userRequest.getDepartmentId());
-            Department department1 = departmentMapper.departmentResponsetoDepartment(departmentResponse1);
-            user.setDepartment(department1);
-            saveUser(user);
+            Department department = departmentRepository.findById(user.getDepartment().getId()).orElse(null);
+            Department departmentRequest = departmentRepository.findById(userRequest.getDepartmentId()).orElse(null);
+            user.setDepartment(departmentRequest);
+            userRepository.save(user);
             //update department quantity
-            department.setQuantity(department.getQuantity()-1);
-            department1.setQuantity(department1.getQuantity()+1);
-            departmentService.saveDepartment(department);
-            departmentService.saveDepartment(department1);
+            if(department != null) {
+                department.setQuantity(department.getQuantity()-1);
+                departmentService.saveDepartment(department);
+            }
+            if(departmentRequest != null) {
+                departmentRequest.setQuantity(departmentRequest.getQuantity()+1);
+                departmentService.saveDepartment(departmentRequest);
+            }
             CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if(myUserDetails.getUser().getId().equals(user.getId())) {
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
@@ -150,36 +146,32 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Page<UserResponse> findByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword) {
+    public Page<UserResponse> listUserfindByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
-        Page<User> list = userCriteria.findByKeyword(pageable,keyword);
-        Page<UserResponse> responsePage = list.map(userMapper::toUserResponse);
+        Page<User> listUserFindByKeyword = userCriteria.findByKeyword(pageable,keyword);
 
-        return responsePage;
+        return listUserFindByKeyword.map(userMapper::toUserResponse);
     }
 
     @Override
-    public Page<UserResponse> findUserActiveByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword) {
+    public Page<UserResponse> listUserActiveFindByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
-        Page<User> list = userCriteria.findUserActiveByKeyword(pageable,keyword);
-        Page<UserResponse> responsePage = list.map(userMapper::toUserResponse);
-        return responsePage;
+        Page<User> listUserActiveFindByKeywordPaging = userCriteria.findUserActiveByKeyword(pageable,keyword);
+        return listUserActiveFindByKeywordPaging.map(userMapper::toUserResponse);
     }
 
     @Override
     public Page<UserResponse> listDepartmentUserPaging(int pageNumber, int pageSize, String sortBy, Long departmentId) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
-        Page<User> list = userRepository.listDepartmentUser(pageable,departmentId);
-        Page<UserResponse> responsePage = list.map(userMapper::toUserResponse);
-        return responsePage;
+        Page<User> listDepartmentUserPaging = userRepository.listDepartmentUser(pageable,departmentId);
+        return listDepartmentUserPaging.map(userMapper::toUserResponse);
     }
 
     @Override
     public Page<UserResponse> listDepartmentUserActivePaging(int pageNumber, int pageSize, String sortBy, Long departmentId) {
         Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
-        Page<User> list = userRepository.listDepartmentUserActive(pageable,departmentId);
-        Page<UserResponse> responsePage = list.map(userMapper::toUserResponse);
-        return responsePage;
+        Page<User> listDepartmentUserActivePaging = userRepository.listDepartmentUserActive(pageable,departmentId);
+        return listDepartmentUserActivePaging.map(userMapper::toUserResponse);
     }
 
     @Override
@@ -199,20 +191,21 @@ public class UserServiceImpl implements UserService {
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setIs_active(!user.isIs_active());
-            saveUser(user);
+            userRepository.save(user);
         }
         else {
             throw new AppException(ErrorMessage.USER_NOT_FOUND);
         }
     }
 
+    @Transactional
     @Override
     public void createPassword(User user, String password) {
         user.setPassword(passwordEncoder.encode(password));
         user.setIs_active(true);
         VerifyToken token = verifyTokenService.findByUser(user);
         verifyTokenService.deleteToken(token);
-        saveUser(user);
+        userRepository.save(user);
     }
 
     @Override
@@ -243,6 +236,6 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("Wrong password");
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
-        saveUser(user);
+        userRepository.save(user);
     }
 }

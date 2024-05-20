@@ -13,13 +13,12 @@ import java.security.Principal;
 import java.util.List;
 
 public interface UserService {
-    User saveUser(User user);
     void createUser(UserRequest userRequest);
     void updateUser(Long id, UpdateUserRequest userRequest);
     void deleteUser(Long id);
     UserResponse findById(Long id);
-    Page<UserResponse> findByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword);
-    Page<UserResponse> findUserActiveByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword);
+    Page<UserResponse> listUserfindByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword);
+    Page<UserResponse> listUserActiveFindByKeywordPaging(int pageNumber, int pageSize, String sortBy, String keyword);
     Page<UserResponse> listDepartmentUserPaging(int pageNumber, int pageSize, String sortBy, Long departmentId);
     Page<UserResponse> listDepartmentUserActivePaging(int pageNumber, int pageSize, String sortBy, Long departmentId);
     boolean emailExists(String email);

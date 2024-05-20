@@ -7,7 +7,6 @@ import com.example.hrm.entity.Department;
 import com.example.hrm.entity.Role;
 import com.example.hrm.entity.User;
 import com.example.hrm.entity.VerifyToken;
-import com.example.hrm.repository.UserRepository;
 import com.example.hrm.service.DepartmentService;
 import com.example.hrm.service.UserService;
 import com.example.hrm.service.VerifyTokenService;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -27,10 +25,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequestMapping("/user")
@@ -42,7 +38,6 @@ public class UserController {
     private final HttpSession session;
     private final VerifyTokenService verifyTokenService;
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
 
     @GetMapping("/list/{numPage}")
     public String listUser(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
@@ -53,10 +48,10 @@ public class UserController {
         String sortBy="id";
         Page<UserResponse> page;
         if(userResponse.getRole() == Role.ADMIN) {
-            page = userService.findByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+            page = userService.listUserfindByKeywordPaging(pageNum,pageSize,sortBy,keyword);
         }
         else {
-            page = userService.findUserActiveByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+            page = userService.listUserActiveFindByKeywordPaging(pageNum,pageSize,sortBy,keyword);
 
         }
         List<UserResponse> listUsers = page.getContent();
@@ -106,7 +101,7 @@ public class UserController {
     @GetMapping("/activation")
     public String activation(@RequestParam("token") String token, Model model) {
         VerifyToken verifyToken = verifyTokenService.findByToken(token);
-        if(verifyToken != null) {
+        if(verifyToken == null) {
             model.addAttribute("message","Mã xác thực không khả dụng");
         }
         else {
@@ -269,14 +264,20 @@ public class UserController {
 
     @GetMapping("/resetPasswordForm")
     public String resetPasswordForm(@RequestParam("token") String token, Model model) {
-        VerifyToken token1 = verifyTokenService.findByToken(token);
-        if(token1 != null) {
-            model.addAttribute("token", token);
-            model.addAttribute("passwordRequest",new PasswordRequest());
-            return "reset_password_form";
-        }
-        else {
+        VerifyToken verifyToken = verifyTokenService.findByToken(token);
+        if(verifyToken == null) {
             return "invalid_token";
+        }
+        else{
+            Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+            if(verifyToken.getExpireDate().before(currentTime)) {
+                return "invalid_token";
+            }
+            else {
+                model.addAttribute("token", token);
+                model.addAttribute("passwordRequest",new PasswordRequest());
+                return "reset_password_form";
+            }
         }
     }
 
