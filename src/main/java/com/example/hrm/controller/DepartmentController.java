@@ -27,6 +27,8 @@ public class DepartmentController {
     private final DepartmentService departmentService;
     private final HttpSession session;
     private final UserService userService;
+    private static final int PAGE_SIZE = 10;
+    private static final String SORT_BY_ID = "id";
     @GetMapping("/")
     public String home() {
         return "index";
@@ -53,21 +55,19 @@ public class DepartmentController {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
         Page<DepartmentResponse> page;
-        int pageSize = 5;
-        String sortBy="id";
         if(userResponse.getRole() == Role.ADMIN) {
-            page = departmentService.findByNamePaging(pageNum,pageSize,sortBy,keyword);
+            page = departmentService.findByNamePaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
         }
         else {
-            page = departmentService.findByNameActivePaging(pageNum,pageSize,sortBy,keyword);
+            page = departmentService.findByNameActivePaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
         }
 
         List<DepartmentResponse> listDept = page.getContent();
         model.addAttribute("totalPages",page.getTotalPages());
         model.addAttribute("totalItems",page.getTotalElements());
         model.addAttribute("currentPage",pageNum);
-        model.addAttribute("pageSize",pageSize);
-        model.addAttribute("sortBy",sortBy);
+        model.addAttribute("pageSize",PAGE_SIZE);
+        model.addAttribute("sortBy",SORT_BY_ID);
         model.addAttribute("listDept",listDept);
         model.addAttribute("keyword",keyword);
         session.setAttribute("url","department/" + pageNum + "?keyword=" + keyword);

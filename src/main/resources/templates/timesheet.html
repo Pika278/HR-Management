@@ -12,7 +12,7 @@
     <style>
         .filter {
             width: 200px;
-            float: right;
+            float: left;
             margin-bottom: 20px;
             margin-top: 10px;
         }
@@ -21,10 +21,11 @@
 <body>
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
+    <a th:href="@{'/addAttendance/' + ${userId}}" class="btn btn-warning border-dark" sec:authorize ="hasAuthority('ADMIN')">&nbsp;Thêm chấm công</a>
     <form class="form-inline filter" th:action="@{/timesheet/1}" method="get">
         <label for="monthYear" class="form-label">Lọc theo tháng</label>
         <input type="month" class="form-control" id="monthYear" name="monthYear" th:value="${currentMonthYear}">
-        <button type="submit" class="btn btn-warning">Filter</button>
+        <button type="submit" class="btn btn-warning">Lọc</button>
     </form>
     <table class="table table-striped table-bordered table-hover">
         <thead class="thread">
@@ -41,7 +42,7 @@
             <td th:text="${attendance.checkinTime}"></td>
             <td th:text="${attendance.checkoutTime}"></td>
             <td align="center" sec:authorize ="hasAuthority('ADMIN')">
-                <a class="btn btn-warning" th:href="@{/}">Sửa</a>
+                <a class="btn btn-warning" th:href="@{'/updateAttendance/' + ${attendance.id}}">Sửa</a>
             </td>
         </tr>
         </tbody>

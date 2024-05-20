@@ -1,17 +1,21 @@
 package com.example.hrm.service.impl;
 
 import com.example.hrm.configuration.CustomUserDetails;
+import com.example.hrm.dto.request.AddAttendanceRequest;
+import com.example.hrm.dto.request.UpdateAttendanceRequest;
 import com.example.hrm.dto.response.AttendanceResponse;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Attendance;
 import com.example.hrm.entity.User;
+import com.example.hrm.exception.AppException;
+import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.AttendanceMapper;
 import com.example.hrm.mapper.UserMapper;
 import com.example.hrm.repository.AttendanceRepository;
+import com.example.hrm.repository.UserRepository;
 import com.example.hrm.repository.criteria.AttendanceCriteria;
 import com.example.hrm.service.AttendanceService;
 import com.example.hrm.service.UserService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,12 +39,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final UserMapper userMapper;
     private final AttendanceCriteria attendanceCriteria;
     private final AttendanceMapper attendanceMapper;
-
-    @Transactional
-    @Override
-    public void saveAttendance(Attendance attendance) {
-        attendanceRepository.save(attendance);
-    }
+    private final UserRepository userRepository;
 
     @Override
     public void checkin() {
@@ -49,21 +48,13 @@ public class AttendanceServiceImpl implements AttendanceService {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = myUserDetails.getUser().getId();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        if(attendanceCriteria.getAttendanceById(localDate,userId) == null) {
             Attendance attendance = new Attendance();
             attendance.setDate(localDate);
             attendance.setCheckinTime(LocalTime.parse(formatter.format(checkinTime)));
             UserResponse userResponse = userService.findById(userId);
             User user = userMapper.userResponseToUser(userResponse);
             attendance.setUser(user);
-            saveAttendance(attendance);
-        }
-        else if(getCheckinTimeById(localDate,userId) == null){
-            Attendance attendance = attendanceCriteria.getAttendanceById(localDate,userId);
-            attendance.setCheckinTime(LocalTime.parse(formatter.format(checkinTime)));
-            saveAttendance(attendance);
-
-        }
+            attendanceRepository.save(attendance);
     }
 
     @Override
@@ -73,19 +64,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = myUserDetails.getUser().getId();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        if(attendanceCriteria.getAttendanceById(localDate,userId) == null) {
-            Attendance attendance = new Attendance();
-            attendance.setDate(localDate);
-            attendance.setCheckoutTime(LocalTime.parse(formatter.format(checkoutTime)));
-            UserResponse userResponse = userService.findById(userId);
-            User user = userMapper.userResponseToUser(userResponse);
-            attendance.setUser(user);
-            saveAttendance(attendance);
-        } else {
             Attendance attendance = attendanceCriteria.getAttendanceById(localDate, userId);
             attendance.setCheckoutTime(LocalTime.parse(formatter.format(checkoutTime)));
-            saveAttendance(attendance);
-        }
+            attendanceRepository.save(attendance);
     }
 
     @Override
@@ -125,4 +106,51 @@ public class AttendanceServiceImpl implements AttendanceService {
         Page<Attendance> attendanceByCurrentMonth = attendanceCriteria.getAttendanceByMonth(pageable, monthValue, yearValue,userId);
         return attendanceByCurrentMonth.map(attendanceMapper::toAttendanceResponse);
     }
+
+    @Override
+    public AttendanceResponse findAttendanceById(Long id) {
+        Attendance attendance = attendanceRepository.findById(id).orElse(null);
+        AttendanceResponse attendanceResponse = attendanceMapper.toAttendanceResponse(attendance);
+        if(attendance != null) {
+            attendanceResponse.setUserId(attendance.getUser().getId());
+        }
+        return attendanceResponse;
+    }
+
+    @Override
+    public void updateAttendance(Long id, UpdateAttendanceRequest request) {
+        Attendance attendance = attendanceRepository.findById(id).orElse(null);
+        if(attendance != null) {
+            attendanceMapper.updateAttendance(attendance,request);
+            attendanceRepository.save(attendance);
+        }
+        else {
+            throw new AppException(ErrorMessage.ATTENDANCE_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void addAttendance(Long userId, AddAttendanceRequest request) {
+        User user = userRepository.findById(userId).orElse(null);
+        Attendance attendance = attendanceCriteria.getAttendanceById(request.getDate(), userId);
+        if(attendance == null) {
+            if(user != null) {
+                Attendance newAttendance = attendanceMapper.toAttendance(request);
+                newAttendance.setUser(user);
+                attendanceRepository.save(newAttendance);
+            }
+        }
+        else {
+            throw new AppException(ErrorMessage.ATTENDANCE_EXISTED);
+        }
+    }
+
+    @Override
+    public AttendanceResponse getAttendanceByDateUser(LocalDate localDate, Long userId) {
+        Attendance attendance = attendanceCriteria.getAttendanceById(localDate,userId);
+        AttendanceResponse attendanceResponse = attendanceMapper.toAttendanceResponse(attendance);
+        attendanceResponse.setUserId(attendance.getUser().getId());
+        return attendanceResponse;
+    }
+
 }

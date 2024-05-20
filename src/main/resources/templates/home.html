@@ -37,14 +37,14 @@
     </div>
 
     <div class="text-center">
-        <form th:action="@{/checkin}" method="post" class="form-container" align="center" th:object="${attendanceRequest}">
-            <button class="btn btn-warning border-dark" data-bs-toggle="modal" data-bs-target="#checkin" type="submit" id="checkinbtn">Check-in</button>
+        <form th:if="${checkinTime}" th:action="@{/checkout}" method="post" class="form-container" align="center" th:object="${attendanceRequest}">
+            <button class="btn btn-mute border-dark" type="submit" id="checkoutbtn">Check-out</button>
         </form>
-        <form th:action="@{/checkout}" method="post" class="form-container" align="center" th:object="${attendanceRequest}">
-            <button class="btn btn-mute border-dark" data-bs-toggle="modal" data-bs-target="#checkout" type="submit" id="checkoutbtn">Check-out</button>
+        <form th:unless="${checkinTime}" th:action="@{/checkin}" method="post" class="form-container" align="center" th:object="${attendanceRequest}">
+            <button class="btn btn-warning border-dark" type="submit" id="checkinbtn">Check-in</button>
         </form>
     </div>
-    <h3 style="margin:20px">Time sheet</h3>
+    <h3 style="margin:20px">Timesheet trong tuần</h3>
     <table class="table table-striped table-bordered table-hover">
         <thead class="thread">
         <tr align="center">

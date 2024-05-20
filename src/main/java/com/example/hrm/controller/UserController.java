@@ -38,28 +38,27 @@ public class UserController {
     private final HttpSession session;
     private final VerifyTokenService verifyTokenService;
     private final PasswordEncoder passwordEncoder;
+    private static final int PAGE_SIZE = 10;
+    private static final String SORT_BY_ID = "id";
 
     @GetMapping("/list/{numPage}")
     public String listUser(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
-
-        int pageSize = 5;
-        String sortBy="id";
         Page<UserResponse> page;
         if(userResponse.getRole() == Role.ADMIN) {
-            page = userService.listUserfindByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+            page = userService.listUserfindByKeywordPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
         }
         else {
-            page = userService.listUserActiveFindByKeywordPaging(pageNum,pageSize,sortBy,keyword);
+            page = userService.listUserActiveFindByKeywordPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
 
         }
         List<UserResponse> listUsers = page.getContent();
         model.addAttribute("totalPages",page.getTotalPages());
         model.addAttribute("totalItems",page.getTotalElements());
         model.addAttribute("currentPage",pageNum);
-        model.addAttribute("pageSize",pageSize);
-        model.addAttribute("sortBy",sortBy);
+        model.addAttribute("pageSize",PAGE_SIZE);
+        model.addAttribute("sortBy",SORT_BY_ID);
         model.addAttribute("listUsers",listUsers);
         model.addAttribute("keyword",keyword);
         session.setAttribute("url","user/list/" + pageNum + "?keyword=" + keyword);

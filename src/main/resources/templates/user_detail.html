@@ -15,7 +15,7 @@
     <div class="container">
     <h1>Thông tin nhân viên</h1>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a th:href="@{/}" class="btn btn-warning border-dark">Xem bảng chấm công</a>
+            <a th:href="@{'/timesheet/' + ${user.id} + '/1'}" class="btn btn-warning border-dark">Xem bảng chấm công</a>
         </div>
     <div class="row g-3">
         <div class="mb-3 col-md-6">
