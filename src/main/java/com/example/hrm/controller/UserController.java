@@ -42,7 +42,7 @@ public class UserController {
     private static final String SORT_BY_ID = "id";
 
     @GetMapping("/list/{numPage}")
-    public String listUser(@RequestParam("keyword") String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
+    public String listUser(@RequestParam(value = "keyword", required = false) String keyword, @PathVariable(name = "numPage") int pageNum, Model model) {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
         Page<UserResponse> page;

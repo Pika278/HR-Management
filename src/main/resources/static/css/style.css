@@ -1,14 +1,17 @@
 * {
     box-sizing: border-box;
 }
+
 .navbar-nav .nav-link {
     color: black;
-    font-size: 20px;
+    font-size: 18px;
 }
+
 .navbar-nav {
     margin-left: auto;
     margin-right:auto;
 }
+
 .btn {
     color: black;
     margin: 10px;
@@ -23,11 +26,95 @@
     margin-bottom: 50px;
     text-align: center;
 }
+
 .logCheckin {
     display: inline-block;
     padding:10px;
 }
+
 .logCheckout {
     display: inline-block;
     padding:10px;
+}
+
+nav .notification{
+	display: flex;
+	align-items: center;
+	height: 0px;
+	position: relative;
+}
+.icon {
+	cursor: pointer;
+	margin-right: 50px;
+	line-height: 40px;
+}
+.icon span {
+	background: #f00;
+	padding: 5px;
+	border-radius: 50%;
+	color: #fff;
+	vertical-align: top;
+	margin-left: -25px;
+	font-size: 12px
+}
+
+.icon img {
+	display: inline-block;
+	width: 30px;
+	margin-top: 20px;
+}
+
+.icon:hover {
+	opacity: .7;
+}
+
+.logo {
+	flex: 1;
+	margin-left: 50px;
+	color: #eee;
+	font-size: 20px;
+	font-family: monospace;
+}
+
+.notifi-box {
+	width: 400px;
+	height: 0px;
+	opacity: 0;
+	position: absolute;
+	top: 60px;
+	right: 35px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: #fff
+}
+.notifi-box h2 span {
+	color: #f00;
+}
+.notifi-item {
+	display: flex;
+	border-bottom: 1px solid #eee;
+	padding: 15px 5px;
+	margin-bottom: 15px;
+	cursor: pointer;
+}
+.notifi-item:hover {
+	background-color: #eee;
+}
+.notifi-item img {
+	display: block;
+	width: 50px;
+	margin-right: 10px;
+	border-radius: 50%;
+}
+.notifi-item .text h4 {
+	font-size: 16px;
+	margin-top: 10px;
+}
+.notifi-item .text h5 {
+	font-size: 14px;
+	margin-top: 10px;
+	color: gray;
+}
+.notifi-item .text p {
+	color: #777;
+	font-size: 12px;
 }
