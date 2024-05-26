@@ -35,7 +35,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<NotificationResponse> getAllNotification() {
-        List<Notification> notificationList = notificationRepository.findAllOrderByDesc();
+        List<Notification> notificationList = notificationRepository.findAllPublishedOrderByDesc();
         List<NotificationResponse> responseList = new ArrayList<>();
         for (Notification notification : notificationList) {
             responseList.add(notificationMapper.toNotificationResponse(notification));
@@ -47,6 +47,7 @@ public class NotificationServiceImpl implements NotificationService {
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
         emitters.add(emitter);
+        log.info("add emitter: {}", emitter);
     }
 
     public void pushNotification(NotificationRequest addNotificationRequest) {
@@ -60,6 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .publishedTime(addNotificationRequest.getPublishedTime())
                 .build();
         notificationRepository.save(notification);
+        log.info("emitter.size() when push noti{}", emitters.toString());
         Runnable task = () -> {
             emitters.forEach(emitter -> {
                 try {
@@ -92,6 +94,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void updateNotification(Long id, NotificationRequest addNotificationRequest) {
         Notification notification = notificationRepository.findById(id).orElse(null);
         if (notification != null) {
+            notification.setPublishedTime(addNotificationRequest.getPublishedTime());
             notification.setTitle(addNotificationRequest.getTitle());
             notification.setMessage(addNotificationRequest.getMessage());
             notificationRepository.save(notification);

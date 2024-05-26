@@ -24,7 +24,7 @@
         <br/>
         <div class="d-grid gap-2 d-md-flex justify-content-md-center" id="modify-noti"
              sec:authorize="hasAuthority('ADMIN')">
-            <a class="btn btn-warning border-dark" th:href="@{'/updateNotification/' + ${notification.id}}">Chỉnh
+            <a class="btn btn-warning border-dark" th:href="@{'/admin/updateNotification/' + ${notification.id}}">Chỉnh
                 sửa</a>
             <span class="btn btn-mute border-dark" data-bs-toggle="modal"
                   th:data-bs-target="'#modal' + ${notification.id}">Xóa</span>
@@ -35,7 +35,7 @@
                         <div class="modal-body">
                             <p>Bạn chắc chắn muốn xóa thông báo này chứ</p>
                             <form action="#" align="center" class="form-container"
-                                  method="post" th:action="@{'/deleteNotification/' + ${notification.id}}" th:object="${notification}">
+                                  method="post" th:action="@{'/admin/deleteNotification/' + ${notification.id}}" th:object="${notification}">
                                 <button class="btn btn-warning" type="submit">Xóa</button>
                             </form>
                         </div>

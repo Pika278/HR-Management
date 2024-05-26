@@ -36,7 +36,7 @@
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-center">
             <button class="btn btn-warning border-dark" type="submit">Lưu</button>
-            <a class="btn btn-mute border-dark" th:href="@{/notification}">Thoát</a>
+            <a class="btn btn-mute border-dark" th:href="@{'/notification/' + ${notification.id}}">Thoát</a>
         </div>
     </form>
 </div>
