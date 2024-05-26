@@ -1,4 +1,4 @@
-package com.example.hrm.controller;
+package com.example.hrm.controller.user;
 
 import com.example.hrm.configuration.CustomUserDetails;
 import com.example.hrm.dto.response.AttendanceResponse;

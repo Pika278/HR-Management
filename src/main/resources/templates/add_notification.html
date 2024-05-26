@@ -14,7 +14,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <h1>Tạo thông báo</h1>
-    <form class="row g-3" method="post" th:action="@{/pushNotification}" th:object="${addNotificationRequest}">
+    <form class="row g-3" method="post" th:action="@{/admin/pushNotification}" th:object="${addNotificationRequest}">
         <div class="mb-3 col-md-6">
             <label class="form-label" for="publishedTime">Thời gian gửi</label>
             <input class="form-control" id="publishedTime" required th:field="*{publishedTime}" type="datetime-local">

@@ -1,4 +1,4 @@
-package com.example.hrm.controller;
+package com.example.hrm.controller.admin;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;

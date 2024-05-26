@@ -53,7 +53,7 @@
                                 <p th:if="${user.is_active}">Bạn chắc chắn muốn khóa tài khoản này chứ</p>
                                 <p th:unless="${user.is_active}">Bạn chắc chắn muốn mở khóa tài khoản này chứ</p>
                                 <form action="#" align="center" class="form-container"
-                                      method="post" th:action="@{'/user/changeActive/' + ${user.id}}" th:object="${user}">
+                                      method="post" th:action="@{'/admin/changeActive/' + ${user.id}}" th:object="${user}">
                                     <button class="btn btn-warning" th:if="${user.is_active}" type="submit">Khóa
                                     </button>
                                     <button class="btn btn-warning" th:unless="${user.is_active}" type="submit">Mở
@@ -68,7 +68,7 @@
                 </div>
             </td>
             <td align="center" sec:authorize="hasAuthority('ADMIN')">
-                <a class="btn btn-warning border-dark" th:href="@{'/user/' + ${user.id}}">&nbsp;Xem</a>
+                <a class="btn btn-warning border-dark" th:href="@{'/admin/userDetail/' + ${user.id}}">&nbsp;Xem</a>
             </td>
         </tr>
         </tbody>

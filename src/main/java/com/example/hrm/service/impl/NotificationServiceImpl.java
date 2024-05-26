@@ -10,6 +10,10 @@ import com.example.hrm.repository.NotificationRepository;
 import com.example.hrm.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -105,5 +109,12 @@ public class NotificationServiceImpl implements NotificationService {
         } else {
             throw new AppException(ErrorMessage.NOTIFICATION_NOT_FOUND);
         }
+    }
+
+    @Override
+    public Page<NotificationResponse> getAllNotificationByDescPaging(int pageNumber, int pageSize, String sortBy, String keyword) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortBy).ascending());
+        Page<Notification> getAllNotificationByDescPaging = notificationRepository.findAllOrderByDescPaging(pageable, keyword);
+        return getAllNotificationByDescPaging.map(notificationMapper :: toNotificationResponse);
     }
 }

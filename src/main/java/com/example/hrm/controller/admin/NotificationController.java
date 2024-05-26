@@ -1,4 +1,4 @@
-package com.example.hrm.controller;
+package com.example.hrm.controller.admin;
 
 import com.example.hrm.dto.request.NotificationRequest;
 import com.example.hrm.dto.response.NotificationResponse;
@@ -14,27 +14,17 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+@RequestMapping("/admin")
 @Controller
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationController {
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
-
-    @GetMapping("/subscription")
-    public SseEmitter subsribe() {
-        log.info("subscribing...");
-        SseEmitter sseEmitter = new SseEmitter(24 * 60 * 60 * 1000L);
-        notificationService.addEmitter(sseEmitter);
-        log.info("subscribed");
-        return sseEmitter;
-    }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/pushNotification")
@@ -58,31 +48,15 @@ public class NotificationController {
                     redirectAttributes.addFlashAttribute(error.getField(), error.getDefaultMessage());
                 }
                 redirectAttributes.addFlashAttribute("addNotificationRequest", request);
-                return "redirect:/pushNotification";
+                return "redirect:/admin/pushNotification";
             }
         }
         notificationService.pushNotification(request);
-        return "redirect:/";
-    }
-
-    @GetMapping("/notification")
-    public String showListNotification(Model model) {
-        List<NotificationResponse> notificationList = notificationService.getAllNotification();
-        model.addAttribute("notificationList", notificationList);
-        return "list_notification";
-    }
-
-    @GetMapping("notification/{id}")
-    public String showNotificationDetail(@PathVariable("id") Long id, Model model) {
-        NotificationResponse notificationResponse = notificationService.findNotificationById(id);
-//        notificationResponse.setPublished(notificationResponse.getPublishedTime().isBefore(LocalDateTime.now()));
-        model.addAttribute("isPublished", notificationResponse.isPublished());
-        model.addAttribute("notification", notificationResponse);
-        return "notification_detail";
+        return "redirect:/notification/page/1?keyword";
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("updateNotification/{id}")
+    @GetMapping("/updateNotification/{id}")
     public String showUpdateNotificationForm(@PathVariable("id") Long id, Model model) {
         NotificationResponse notificationResponse = notificationService.findNotificationById(id);
         if (notificationResponse.isPublished()) {
@@ -113,10 +87,10 @@ public class NotificationController {
             NotificationResponse updateNotificationResponse = notificationMapper.notificationRequesttoNotificationResponse(request);
             redirectAttributes.addFlashAttribute("notification",updateNotificationResponse);
             redirectAttributes.addFlashAttribute("notificationId",id);
-            return "redirect:/updateNotification/" + id;
+            return "redirect:/admin/updateNotification/" + id;
         }
         notificationService.updateNotification(id, request);
-        return "redirect:/notification";
+        return "redirect:/notification/page/1?keyword";
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -127,7 +101,7 @@ public class NotificationController {
             return "redirect:/notification/" + id;
         }
         notificationService.deleteNotification(id);
-        return "redirect:/notification";
+        return "redirect:/notification/page/1?keyword";
     }
 
     @ExceptionHandler(AppException.class)

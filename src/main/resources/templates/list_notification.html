@@ -15,7 +15,12 @@
 <body>
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
-    <a class="btn btn-warning border-dark" th:href="@{/pushNotification}">&nbsp;Thêm thông báo</a>
+    <a class="btn btn-warning border-dark" th:href="@{/admin/pushNotification}">&nbsp;Thêm thông báo</a>
+    <form class="form-inline m-3">
+        Filter search: &nbsp;<input name="keyword" th:value="${keyword}" type="text"/>
+        &nbsp;&nbsp
+        <input class="btn btn-warning border-dark" type="submit" value="Search"/>
+    </form>
     <table class="table table-striped table-bordered table-hover">
         <thead class="thread">
         <tr align="center">
@@ -28,7 +33,6 @@
         <tr align="center" th:each="notification:${notificationList}">
             <td th:text="${notification.title}"></td>
             <td th:text="${notification.publishedTime}"></td>
-<!--            <td th:text="${#temporals.format(notification.publishedTime, 'dd-MM-yyyy HH:mm')}"></td>-->
             <td align="center">
                 <a class="btn btn-warning" th:href="@{'/notification/' + ${notification.id}}">Xem</a>
             </td>
@@ -38,7 +42,7 @@
 
     <div th:if="${totalPages > 1}">
         <nav>
-            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/notification/'">
+            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/notification/page/'">
                 <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
                     <a class="page-link" th:href="@{${pageUrlPrefix} + ${1}}">
                         First

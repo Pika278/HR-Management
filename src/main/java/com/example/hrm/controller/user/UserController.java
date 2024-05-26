@@ -1,4 +1,4 @@
-package com.example.hrm.controller;
+package com.example.hrm.controller.user;
 
 import com.example.hrm.configuration.CustomUserDetails;
 import com.example.hrm.dto.request.*;
@@ -8,17 +8,14 @@ import com.example.hrm.entity.Role;
 import com.example.hrm.entity.User;
 import com.example.hrm.entity.VerifyToken;
 import com.example.hrm.exception.AppException;
-import com.example.hrm.mapper.UserMapper;
 import com.example.hrm.service.DepartmentService;
 import com.example.hrm.service.UserService;
 import com.example.hrm.service.VerifyTokenService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -26,8 +23,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -40,7 +35,6 @@ public class UserController {
     private static final String SORT_BY_ID = "id";
     private final UserService userService;
     private final DepartmentService departmentService;
-    private final HttpSession session;
     private final VerifyTokenService verifyTokenService;
     private final PasswordEncoder passwordEncoder;
 
@@ -63,46 +57,7 @@ public class UserController {
         model.addAttribute("sortBy", SORT_BY_ID);
         model.addAttribute("listUsers", listUsers);
         model.addAttribute("keyword", keyword);
-        session.setAttribute("url", "user/list/" + pageNum + "?keyword=" + keyword);
         return "list_user";
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/add")
-    public String addUserForm(Model model) {
-        if(!model.containsAttribute("user")) {
-            UserRequest userRequest = new UserRequest();
-            model.addAttribute("user", userRequest);
-        }
-        List<Department> listDepartment = departmentService.getAllDepartment();
-        model.addAttribute("listDepartment", listDepartment);
-        return "register";
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/add")
-    public String addUser(
-            @Valid @ModelAttribute("user") UserRequest userRequest,
-            BindingResult bindingResult,
-            Model model,
-            RedirectAttributes redirectAttributes
-    ) {
-        if (userService.emailExists(userRequest.getEmail())) {
-            bindingResult.addError(new FieldError("user", "email", "Email đã tồn tại"));
-        }
-        if (userService.citizenIdExists(userRequest.getCitizenId())) {
-            bindingResult.addError(new FieldError("user", "citizenId", "CCCD đã tồn tại"));
-        }
-        if (bindingResult.hasErrors()) {
-            for(FieldError error: bindingResult.getFieldErrors()) {
-                redirectAttributes.addFlashAttribute(error.getField(), error.getDefaultMessage());
-            }
-            redirectAttributes.addFlashAttribute("user", userRequest);
-            return "redirect:/user/add";
-        } else {
-            userService.createUser(userRequest);
-            return "redirect:/";
-        }
     }
 
     @GetMapping("/activation")
@@ -150,16 +105,6 @@ public class UserController {
         return "create_password";
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/{id}")
-    public String getUserDetail(@PathVariable("id") Long id, Model model) {
-        UserResponse userResponse = userService.findById(id);
-        model.addAttribute("user", userResponse);
-        List<Department> listDepartment = departmentService.getAllDepartment();
-        model.addAttribute("listDepartment", listDepartment);
-        return "user_detail";
-    }
-
     @GetMapping("/profile")
     public String getUserProfile(Model model) {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -168,77 +113,6 @@ public class UserController {
         List<Department> listDepartment = departmentService.getAllDepartment();
         model.addAttribute("listDepartment", listDepartment);
         return "user_detail";
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("update/{id}")
-    public String updateUserForm(@PathVariable Long id, Model model) {
-        if(!model.containsAttribute("user")) {
-            UserResponse userResponse = userService.findById(id);
-            model.addAttribute("user", userResponse);
-        }
-        List<Department> listDepartment = departmentService.getAllDepartment();
-        model.addAttribute("listDepartment", listDepartment);
-        return "update_user";
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable Long id, @Valid @ModelAttribute("user") UpdateUserRequest userRequest, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
-        UserResponse userResponse = userService.findById(id);
-        if (!userRequest.getCitizenId().equals(userResponse.getCitizenId()) && userService.citizenIdExists(userRequest.getCitizenId())) {
-            bindingResult.addError(new FieldError("user", "citizenId", "CCCD đã tồn tại"));
-        }
-        if (bindingResult.hasErrors()) {
-            for(FieldError error: bindingResult.getFieldErrors()) {
-                redirectAttributes.addFlashAttribute(error.getField(), error.getDefaultMessage());
-            }
-            redirectAttributes.addFlashAttribute("user", userRequest);
-            return "redirect:/user/update/" + id;
-        }
-        userService.updateUser(id, userRequest);
-        return "redirect:/user/" + id;
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/changeActive/{id}")
-    public String changeActive(@PathVariable("id") Long id) {
-        userService.changeActive(id);
-        String url = (String) session.getAttribute("url");
-        return "redirect:/" + url;
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-        String url = (String) session.getAttribute("url");
-        return "redirect:/" + url;
-    }
-
-    @GetMapping("/departmentUser/{departmentId}/{numPage}")
-    public String listDepartmentUser(@PathVariable("departmentId") Long departmentId, @PathVariable(name = "numPage") int pageNum, Model model) {
-        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
-
-        int pageSize = 5;
-        String sortBy = "id";
-        Page<UserResponse> page;
-        if (userResponse.getRole() == Role.ADMIN) {
-            page = userService.listDepartmentUserPaging(pageNum, pageSize, sortBy, departmentId);
-        } else {
-            page = userService.listDepartmentUserActivePaging(pageNum, pageSize, sortBy, departmentId);
-        }
-        List<UserResponse> listUsers = page.getContent();
-        model.addAttribute("totalPages", page.getTotalPages());
-        model.addAttribute("totalItems", page.getTotalElements());
-        model.addAttribute("currentPage", pageNum);
-        model.addAttribute("pageSize", pageSize);
-        model.addAttribute("sortBy", sortBy);
-        model.addAttribute("listUsers", listUsers);
-        model.addAttribute("departmentId", departmentId);
-        session.setAttribute("url", "user/departmentUser/" + departmentId + "/" + pageNum);
-        return "list_department_user";
     }
 
     @GetMapping("/forgotPasswordForm")

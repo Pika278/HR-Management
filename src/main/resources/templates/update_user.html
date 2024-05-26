@@ -16,7 +16,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <h1>Sửa thông tin nhân viên</h1>
-    <form class="row g-3" method="post" th:action="@{'/user/update/' + ${user.id}}" th:object="${user}">
+    <form class="row g-3" method="post" th:action="@{'/admin/update/' + ${user.id}}" th:object="${user}">
         <div class="mb-3 col-md-6">
             <label class="form-label" for="email">Email</label>
             <input class="form-control" readonly id="email" th:field="*{email}" type="email">
@@ -50,6 +50,7 @@
         <div class="mb-3 col-md-6">
             <label class="form-label" for="dob">Ngày sinh</label>
             <input class="form-control" id="dob" th:field="*{dateOfBirth}" type="date">
+            <p class="error" th:text="${dateOfBirth}" th:if="${dateOfBirth != null}"></p>
         </div>
         <div class="mb-3 col-md-6">
             <label class="form-label" for="role">Vai trò </label>
@@ -63,7 +64,6 @@
         <div class="mb-3 col-md-6">
             <label class="form-label" for="phoneNumber">Số điện thoại</label>
             <input class="form-control" id="phoneNumber" th:field="*{phoneNumber}" type="text">
-<!--            <p class="error" th:errors="*{phoneNumber}" th:if="${#fields.hasErrors('phoneNumber')}"></p>-->
             <p class="error" th:text="${phoneNumber}" th:if="${phoneNumber != null}"></p>
 
         </div>

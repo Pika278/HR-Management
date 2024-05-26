@@ -18,6 +18,8 @@ public class EmailServiceImpl implements EmailService {
     private final VerifyTokenService verifyTokenService;
     private final TemplateEngine templateEngine;
     private final JavaMailSender javaMailSender;
+    private static final String URL_ACTIVATION = "http://localhost:8080/user/activation?token=";
+    private static final String URL_FORGOT_PASSWORD = "http://localhost:8080/user/resetPasswordForm?token=";
 
     public EmailServiceImpl(VerifyTokenService verifyTokenService, TemplateEngine templateEngine, JavaMailSender javaMailSender) {
         this.verifyTokenService = verifyTokenService;
@@ -34,7 +36,7 @@ public class EmailServiceImpl implements EmailService {
             String token = verifyToken.getToken();
             Context context = new Context();
             context.setVariable("title", "Xác thực tài khoản");
-            context.setVariable("link", "http://localhost:8080/user/activation?token=" + token);
+            context.setVariable("link", URL_ACTIVATION + token);
             String body = templateEngine.process("verification", context);
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -52,7 +54,7 @@ public class EmailServiceImpl implements EmailService {
             String token = verifyToken.getToken();
             Context context = new Context();
             context.setVariable("title", "Đặt lại mật khẩu");
-            context.setVariable("link", "http://localhost:8080/user/resetPasswordForm?token=" + token);
+            context.setVariable("link", URL_FORGOT_PASSWORD + token);
             String body = templateEngine.process("forgot_password_template", context);
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);

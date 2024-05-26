@@ -18,7 +18,7 @@
 <div class="container">
     <a class="btn btn-warning border-dark" sec:authorize="hasAuthority('ADMIN')"
        th:href="@{'/addAttendance/' + ${userId}}">&nbsp;Thêm chấm công</a>
-    <form class="form-inline filter" method="get" th:action="@{'/timesheet/user/' + ${userId} + '/page/1'}">
+    <form class="form-inline filter" method="get" th:action="@{/timesheet/1}">
         <label class="form-label" for="monthYear">Lọc theo tháng</label>
         <input class="form-control" id="monthYear" name="monthYear" th:value="${currentMonthYear}" type="month">
         <button class="btn btn-warning" type="submit">Lọc</button>
@@ -34,7 +34,7 @@
         </thead>
         <tbody>
         <tr align="center" th:each="attendance:${listAttendance}">
-<!--            <td th:text="${#temporals.format(attendance.date, 'dd-MM-yyyy')}"></td>-->
+            <!--            <td th:text="${#temporals.format(attendance.date, 'dd-MM-yyyy')}"></td>-->
             <td th:text="${attendance.date}"></td>
             <td th:text="${attendance.checkinTime}"></td>
             <td th:text="${attendance.checkoutTime}"></td>
@@ -47,7 +47,7 @@
 
     <div th:if="${totalPages > 1}">
         <nav>
-            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/timesheet/user/' + ${userId} + '/page/'">
+            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/timesheet/'">
                 <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
                     <a class="page-link" th:href="@{${pageUrlPrefix} + ${1}}">
                         First

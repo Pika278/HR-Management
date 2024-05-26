@@ -18,7 +18,7 @@
 <div class="container">
     <h1>Thông tin nhân viên</h1>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-warning border-dark" th:href="@{'/timesheet/' + ${user.id} + '/1'}">Xem bảng chấm công</a>
+        <a class="btn btn-warning border-dark" th:href="@{'/timesheet/user/' + ${user.id} + '/page/1'}">Xem bảng chấm công</a>
     </div>
     <div class="row g-3">
         <div class="mb-3 col-md-6">
@@ -80,7 +80,7 @@
         <br/>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-center" sec:authorize="hasAuthority('ADMIN')">
-            <a class="btn btn-warning border-dark" th:href="@{'/user/update/' + ${user.id}}">Chỉnh sửa</a>
+            <a class="btn btn-warning border-dark" th:href="@{'/admin/update/' + ${user.id}}">Chỉnh sửa</a>
             <span class="btn btn-mute border-dark" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${user.id}">Xóa vĩnh viễn</span>
             <div class="modal fade text-center" th:id="'modal' + ${user.id}">
                 <div class="modal-dialog modal-dialog-centered">
@@ -89,7 +89,7 @@
                         <div class="modal-body">
                             <p>Bạn chắc chắn muốn xóa tài khoản này chứ</p>
                             <form action="#" align="center" class="form-container"
-                                  method="post" th:action="@{'/user/delete/' + ${user.id}}" th:object="${user}">
+                                  method="post" th:action="@{'/admin/delete/' + ${user.id}}" th:object="${user}">
                                 <button class="btn btn-warning" type="submit">Xóa</button>
                             </form>
                         </div>

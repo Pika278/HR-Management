@@ -44,12 +44,13 @@
                     <input class="form-check-input" id="exampleCheck2" th:field="*{gender}" type="radio" value="Nữ">
                     <label class="form-check-label" for="exampleCheck2">Nữ</label>
                 </div>
-                <p class="error" th:errors="*{gender}" th:if="${#fields.hasErrors('gender')}"></p>
+                <p class="error" th:text="${gender}" th:if="${gender != null}"></p>
             </div>
         </div>
         <div class="mb-3 col-md-6">
             <label class="form-label" for="dob">Ngày sinh</label>
-            <input class="form-control" id="dob" th:field="*{dateOfBirth}" type="date">
+            <input class="form-control" id="dob" th:field="*{dateOfBirth}" type="date" required>
+            <p class="error" th:text="${dateOfBirth}" th:if="${dateOfBirth != null}"></p>
         </div>
         <div class="mb-3 col-md-6">
             <label class="form-label" for="role">Vai trò </label>

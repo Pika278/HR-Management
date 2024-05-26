@@ -23,6 +23,7 @@ public class UpdateUserRequest {
     private String gender;
     @NotBlank(message = "Không được bỏ trống")
     private String fullName;
+    @NotBlank(message = "Không được bỏ trống")
     private String dateOfBirth;
     @ValidNumber
     private String phoneNumber;

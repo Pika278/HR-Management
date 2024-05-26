@@ -5,6 +5,7 @@ import com.example.hrm.validation.ValidNumber;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -24,6 +25,8 @@ public class UserRequest {
     private String gender;
     @NotBlank(message = "Không được bỏ trống")
     private String fullName;
+    @NotBlank(message = "Không được bỏ trống")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String dateOfBirth;
     @ValidNumber
     private String phoneNumber;

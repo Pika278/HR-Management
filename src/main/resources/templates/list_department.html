@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -8,6 +9,7 @@
     <script crossorigin="anonymous"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link href="../static/css/style.css" rel="stylesheet" th:href="@{/css/style.css}"/>
     <link href="../static/img/amela.jpg" rel="icon" th:href="@{/img/amela.jpg}" type="image/x-icon">
     <title>Danh sách phòng ban</title>
@@ -16,16 +18,14 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <div>
-        <button class="btn btn-warning border-dark" data-bs-target="#add" data-bs-toggle="modal" id="addDepartment">Thêm
-            phòng ban
-        </button>
-        <div class="modal fade text-center" id="add">
+        <button class="btn btn-warning border-dark" data-bs-target="#add" data-bs-toggle="modal" id="addDepartment" sec:authorize="hasAuthority('ADMIN')">Thêm phòng ban</button>
+        <div class="modal fade text-center" id="add" data-bs-backdrop='static' sec:authorize="hasAuthority('ADMIN')">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">Thêm phòng ban</div>
                     <div class="modal-body">
-                        <form action="#" align="center" class="form-container" method="post"
-                              th:action="@{/department/add}" th:object="${departmentRequest}">
+                        <form align="center" class="form-container" method="post"
+                              th:action="@{/admin/department/add}" th:object="${departmentRequest}">
                             <input placeholder="Nhập tên phòng" required th:field="*{name}" type="text"/>
                             <p class="error" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></p>
                             <br/>
@@ -51,7 +51,7 @@
             <th>Tên phòng</th>
             <th>Số lượng nhân viên</th>
             <th>Danh sách nhân viên</th>
-            <th>Quản lý</th>
+            <th sec:authorize="hasAuthority('ADMIN')">Quản lý</th>
         </tr>
         </thead>
         <tbody>
@@ -60,18 +60,18 @@
             <td th:text="${dept.name}"></td>
             <td th:text="${dept.quantity}"></td>
             <td align="center">
-                <a class="btn btn-warning border-dark" th:href="@{'/user/departmentUser/' + ${dept.id} + '/1'}">&nbsp;Xem</a>
+                <a class="btn btn-warning border-dark" th:href="@{'/department/user/' + ${dept.id} + '/page/1'}">&nbsp;Xem</a>
             </td>
-            <td align="center">
+            <td align="center" sec:authorize="hasAuthority('ADMIN')">
                 <span class="fa fa-pencil" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${dept.id}"
-                      th:id="'updateDepartment' + ${dept.id}"></span>
-                <div class="modal fade text-center" th:id="'modal' + ${dept.id}">
+                      th:id="'updateDepartment' + ${dept.id}" sec:authorize="hasAuthority('ADMIN')"></span>
+                <div class="modal fade text-center" th:id="'modal' + ${dept.id}" data-bs-backdrop='static' sec:authorize="hasAuthority('ADMIN')">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">Sửa phòng ban</div>
                             <div class="modal-body">
                                 <form align="center" class="form-container"
-                                      method="post" th:action="@{'/department/update/' + ${dept.id}}" th:object="${updateDepartment}">
+                                      method="post" th:action="@{'/admin/department/update/' + ${dept.id}}" th:object="${updateDepartment}">
                                     <input required th:name="name" th:value="${dept.name}" type="text"/>
                                     <p class="error" style="color:red" th:errors="*{name}"
                                        th:if="${#fields.hasErrors('name')}"></p>
@@ -80,22 +80,22 @@
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-mute border-dark" data-bs-dismiss="modal" type="button">Close
+                                <button class="btn btn-mute border-dark" onClick="window.location.reload();" data-bs-dismiss="modal" type="button">Close
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
                 &nbsp;&nbsp;&nbsp;
-                <span class="fa fa-trash" data-bs-toggle="modal" th:data-bs-target="'#modalDelete' + ${dept.id}"></span>
-                <div class="modal fade text-center" th:id="'modalDelete' + ${dept.id}">
+                <span class="fa fa-trash" data-bs-toggle="modal" th:data-bs-target="'#modalDelete' + ${dept.id}" data-bs-backdrop='static' sec:authorize="hasAuthority('ADMIN')"></span>
+                <div class="modal fade text-center" th:id="'modalDelete' + ${dept.id}" sec:authorize="hasAuthority('ADMIN')">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">Xóa phòng ban</div>
                             <div class="modal-body">
                                 <p>Bạn chắc chắn muốn xóa phòng <span th:text="${dept.name}">value</span></p>
-                                <form action="#" align="center" class="form-container"
-                                      method="post" th:action="@{'/department/delete/' + ${dept.id}}">
+                                <form align="center" class="form-container"
+                                      method="post" th:action="@{'/admin/department/delete/' + ${dept.id}}">
                                     <button class="btn btn-warning border-dark" type="submit">Xóa</button>
                                 </form>
                             </div>
@@ -145,13 +145,12 @@
 </div>
 
 <script th:inline="javascript">
-
     let isShowAddModal = [[${isShowAddModal}]];
     if (!!isShowAddModal) {
         document.getElementById('addDepartment').click();
     }
 
-    let departmentId = [[${departmentId}]]
+    let departmentId = ${dept.id}
     let isShowUpdateModal = [[${isShowUpdateModal}]];
     if (!!isShowUpdateModal) {
         let id = 'updateDepartment' + departmentId;
