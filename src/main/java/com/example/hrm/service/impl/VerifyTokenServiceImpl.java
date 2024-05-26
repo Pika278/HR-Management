@@ -20,8 +20,8 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
 
     @Override
     public void save(User user, String token) {
-        VerifyToken verifyToken = new VerifyToken(token,user);
-        verifyToken.setExpireDate(caculateExpiredTime(24*60));
+        VerifyToken verifyToken = new VerifyToken(token, user);
+        verifyToken.setExpireDate(caculateExpiredTime(24 * 60));
         verifyTokenRepository.save(verifyToken);
     }
 
@@ -38,7 +38,7 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
     }
 
     @Override
-    public VerifyToken  findByToken(String token) {
+    public VerifyToken findByToken(String token) {
         return verifyTokenRepository.findByToken(token).orElse(null);
     }
 
@@ -54,11 +54,11 @@ public class VerifyTokenServiceImpl implements VerifyTokenService {
 
     @Override
     public void updateToken(User user, String token) {
-       Optional<VerifyToken> verifyToken = verifyTokenRepository.findByUser(user);
-       if(verifyToken.isPresent()) {
-           verifyToken.get().setToken(token);
-           verifyToken.get().setExpireDate(caculateExpiredTime(24*60));
-           saveToken(verifyToken.get());
-       }
+        Optional<VerifyToken> verifyToken = verifyTokenRepository.findByUser(user);
+        if (verifyToken.isPresent()) {
+            verifyToken.get().setToken(token);
+            verifyToken.get().setExpireDate(caculateExpiredTime(24 * 60));
+            saveToken(verifyToken.get());
+        }
     }
 }

@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Optional;
-
 @Service
 public class EmailServiceImpl implements EmailService {
     private final VerifyTokenService verifyTokenService;
@@ -31,17 +29,18 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendHTMLMail(User user) throws MessagingException {
         VerifyToken verifyToken = verifyTokenService.findByUser(user);
-        if(verifyToken != null) {
+        System.out.println(verifyToken);
+        if (verifyToken != null) {
             String token = verifyToken.getToken();
             Context context = new Context();
-            context.setVariable("title","Xác thực tài khoản");
+            context.setVariable("title", "Xác thực tài khoản");
             context.setVariable("link", "http://localhost:8080/user/activation?token=" + token);
-            String body = templateEngine.process("verification",context);
+            String body = templateEngine.process("verification", context);
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,true);
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
             mimeMessageHelper.setTo(user.getEmail());
             mimeMessageHelper.setSubject("Xác thực tài khoản");
-            mimeMessageHelper.setText(body,true);
+            mimeMessageHelper.setText(body, true);
             javaMailSender.send(mimeMessage);
         }
     }
@@ -49,17 +48,17 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendForgotPasswordMail(User user) throws MessagingException {
         VerifyToken verifyToken = verifyTokenService.findByUser(user);
-        if(verifyToken != null) {
+        if (verifyToken != null) {
             String token = verifyToken.getToken();
             Context context = new Context();
-            context.setVariable("title","Đặt lại mật khẩu");
+            context.setVariable("title", "Đặt lại mật khẩu");
             context.setVariable("link", "http://localhost:8080/user/resetPasswordForm?token=" + token);
-            String body = templateEngine.process("forgot_password_template",context);
+            String body = templateEngine.process("forgot_password_template", context);
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,true);
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
             mimeMessageHelper.setTo(user.getEmail());
             mimeMessageHelper.setSubject("Đặt lại mật khẩu");
-            mimeMessageHelper.setText(body,true);
+            mimeMessageHelper.setText(body, true);
             javaMailSender.send(mimeMessage);
         }
     }

@@ -5,5 +5,6 @@ import jakarta.mail.MessagingException;
 
 public interface EmailService {
     void sendHTMLMail(User user) throws MessagingException;
+
     void sendForgotPasswordMail(User user) throws MessagingException;
 }

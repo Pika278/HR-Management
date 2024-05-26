@@ -10,6 +10,11 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface AttendanceMapper {
     AttendanceResponse toAttendanceResponse(Attendance attendance);
+
     void updateAttendance(@MappingTarget Attendance attendance, UpdateAttendanceRequest request);
+
     Attendance toAttendance(AddAttendanceRequest attendanceRequest);
+
+    AttendanceResponse attendanceRequestToUpdateAttendanceResponse(UpdateAttendanceRequest updateAttendanceRequest);
+    AttendanceResponse attendanceRequestToAddAttendanceResponse(AddAttendanceRequest attendanceRequest);
 }

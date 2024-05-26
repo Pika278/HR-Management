@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     UserResponse toUserResponse(User user);
+
     @Mapping(target = "email", source = "email")
     @Mapping(target = "citizenId", source = "citizenId")
     @Mapping(target = "gender", source = "gender")
@@ -20,7 +21,15 @@ public interface UserMapper {
     @Mapping(target = "role", source = "role")
     @Mapping(target = "jobTitle", source = "jobTitle")
     User userRequestToUser(UserRequest userRequest);
+
     User userResponseToUser(UserResponse userResponse);
 
+    @Mapping(target = "citizenId", source = "citizenId")
+    @Mapping(target = "gender", source = "gender")
+    @Mapping(target = "fullName", source = "fullName")
+    @Mapping(target = "dateOfBirth", source = "dateOfBirth")
+    @Mapping(target = "phoneNumber", source = "phoneNumber")
+    @Mapping(target = "role", source = "role")
+    @Mapping(target = "jobTitle", source = "jobTitle")
     void updateUser(@MappingTarget User user, UpdateUserRequest userRequest);
 }

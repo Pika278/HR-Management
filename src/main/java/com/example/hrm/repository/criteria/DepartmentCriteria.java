@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DepartmentCriteria {
     private final EntityManager entityManager;
-    public Page<DepartmentResponse> getDepartmentsWithActiveUsers(Pageable pageable,String namePattern) {
+
+    public Page<DepartmentResponse> getDepartmentsWithActiveUsers(Pageable pageable, String namePattern) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<DepartmentResponse> query = cb.createQuery(DepartmentResponse.class);
 

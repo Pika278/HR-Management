@@ -22,6 +22,6 @@ public class Attendance {
     private LocalTime checkinTime;
     private LocalTime checkoutTime;
     @ManyToOne()
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 }

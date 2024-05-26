@@ -1,23 +1,22 @@
 package com.example.hrm.service.impl;
 
-import com.example.hrm.dto.request.AddNotificationRequest;
+import com.example.hrm.dto.request.NotificationRequest;
 import com.example.hrm.dto.response.NotificationResponse;
 import com.example.hrm.entity.Notification;
+import com.example.hrm.exception.AppException;
+import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.NotificationMapper;
 import com.example.hrm.repository.NotificationRepository;
 import com.example.hrm.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-
-import java.time.Duration;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,13 +26,14 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
+    private final ThreadPoolTaskScheduler taskScheduler;
     List<SseEmitter> emitters = new ArrayList<>();
 
     @Override
     public List<NotificationResponse> getAllNotification() {
         List<Notification> notificationList = notificationRepository.findAllOrderByDesc();
         List<NotificationResponse> responseList = new ArrayList<>();
-        for(Notification notification : notificationList) {
+        for (Notification notification : notificationList) {
             responseList.add(notificationMapper.toNotificationResponse(notification));
         }
         return responseList;
@@ -45,7 +45,7 @@ public class NotificationServiceImpl implements NotificationService {
         emitters.add(emitter);
     }
 
-    public void pushNotification(AddNotificationRequest addNotificationRequest) {
+    public void pushNotification(NotificationRequest addNotificationRequest) {
         log.info("pushing notification {}", addNotificationRequest);
         List<SseEmitter> deadEmitters = new ArrayList<>();
 
@@ -53,44 +53,57 @@ public class NotificationServiceImpl implements NotificationService {
                 .builder()
                 .title(addNotificationRequest.getTitle())
                 .message(addNotificationRequest.getMessage())
+                .publishedTime(addNotificationRequest.getPublishedTime())
                 .build();
         notificationRepository.save(notification);
+        Runnable task = () -> {
+            emitters.forEach(emitter -> {
+                try {
+                    emitter.send(SseEmitter
+                            .event()
+                            .data(notification));
 
-        emitters.forEach(emitter -> {
-            try {
-                emitter.send(SseEmitter
-                        .event()
-                        .data(notification));
+                } catch (IOException e) {
+                    deadEmitters.add(emitter);
+                }
+            });
 
-            } catch (IOException e) {
-                deadEmitters.add(emitter);
-            }
-        });
-
-        emitters.removeAll(deadEmitters);
+            emitters.removeAll(deadEmitters);
+        };
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(notification.getPublishedTime(), ZoneId.systemDefault());
+        taskScheduler.schedule(task, zonedDateTime.toInstant());
     }
 
     @Override
     public NotificationResponse findNotificationById(Long id) {
         Notification notification = notificationRepository.findById(id).orElse(null);
-        return notificationMapper.toNotificationResponse(notification);
+        if (notification != null) {
+            return notificationMapper.toNotificationResponse(notification);
+        } else {
+            throw new AppException(ErrorMessage.NOTIFICATION_NOT_FOUND);
+        }
     }
 
     @Override
-    public void updateNotification(Long id, AddNotificationRequest addNotificationRequest) {
+    public void updateNotification(Long id, NotificationRequest addNotificationRequest) {
         Notification notification = notificationRepository.findById(id).orElse(null);
-        if(notification != null) {
+        if (notification != null) {
             notification.setTitle(addNotificationRequest.getTitle());
             notification.setMessage(addNotificationRequest.getMessage());
             notificationRepository.save(notification);
+        } else {
+            throw new AppException(ErrorMessage.NOTIFICATION_NOT_FOUND);
         }
+
     }
 
     @Override
     public void deleteNotification(Long id) {
         Notification notification = notificationRepository.findById(id).orElse(null);
-        if(notification != null) {
+        if (notification != null) {
             notificationRepository.delete(notification);
+        } else {
+            throw new AppException(ErrorMessage.NOTIFICATION_NOT_FOUND);
         }
     }
 }

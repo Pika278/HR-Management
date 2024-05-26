@@ -29,7 +29,6 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,13 +47,13 @@ public class AttendanceServiceImpl implements AttendanceService {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = myUserDetails.getUser().getId();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            Attendance attendance = new Attendance();
-            attendance.setDate(localDate);
-            attendance.setCheckinTime(LocalTime.parse(formatter.format(checkinTime)));
-            UserResponse userResponse = userService.findById(userId);
-            User user = userMapper.userResponseToUser(userResponse);
-            attendance.setUser(user);
-            attendanceRepository.save(attendance);
+        Attendance attendance = new Attendance();
+        attendance.setDate(localDate);
+        attendance.setCheckinTime(LocalTime.parse(formatter.format(checkinTime)));
+        UserResponse userResponse = userService.findById(userId);
+        User user = userMapper.userResponseToUser(userResponse);
+        attendance.setUser(user);
+        attendanceRepository.save(attendance);
     }
 
     @Override
@@ -64,30 +63,30 @@ public class AttendanceServiceImpl implements AttendanceService {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = myUserDetails.getUser().getId();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            Attendance attendance = attendanceCriteria.getAttendanceById(localDate, userId);
-            attendance.setCheckoutTime(LocalTime.parse(formatter.format(checkoutTime)));
-            attendanceRepository.save(attendance);
+        Attendance attendance = attendanceCriteria.getAttendanceById(localDate, userId);
+        attendance.setCheckoutTime(LocalTime.parse(formatter.format(checkoutTime)));
+        attendanceRepository.save(attendance);
     }
 
     @Override
     public LocalTime getCheckinTimeById(LocalDate localDate, Long userId) {
-        Attendance attendance = attendanceCriteria.getAttendanceById(localDate,userId);
-        if(attendance == null) return null;
+        Attendance attendance = attendanceCriteria.getAttendanceById(localDate, userId);
+        if (attendance == null) return null;
         return attendance.getCheckinTime();
     }
 
     @Override
     public LocalTime getCheckoutTimeById(LocalDate localDate, Long userId) {
-        Attendance attendance = attendanceCriteria.getAttendanceById(localDate,userId);
-        if(attendance == null) return null;
+        Attendance attendance = attendanceCriteria.getAttendanceById(localDate, userId);
+        if (attendance == null) return null;
         return attendance.getCheckoutTime();
     }
 
     @Override
     public List<AttendanceResponse> getAttendanceByWeek(LocalDate localDate, Long userId) {
-        List<Attendance> list = attendanceCriteria.getAttendanceByWeek(localDate,userId);
+        List<Attendance> list = attendanceCriteria.getAttendanceByWeek(localDate, userId);
         List<AttendanceResponse> responses = new ArrayList<>();
-        for(Attendance attendance : list) {
+        for (Attendance attendance : list) {
             responses.add(attendanceMapper.toAttendanceResponse(attendance));
         }
         return responses;
@@ -95,15 +94,15 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public Page<AttendanceResponse> getAttendanceByCurrentMonth(int pageNumber, int pageSize, String sortBy, Long userId) {
-        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).descending());
-        Page<Attendance> attendanceByCurrentMonth = attendanceCriteria.getAttendanceByCurrentMonth(pageable,userId);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortBy).descending());
+        Page<Attendance> attendanceByCurrentMonth = attendanceCriteria.getAttendanceByCurrentMonth(pageable, userId);
         return attendanceByCurrentMonth.map(attendanceMapper::toAttendanceResponse);
     }
 
     @Override
     public Page<AttendanceResponse> getAttendanceByMonth(int pageNumber, int pageSize, String sortBy, Long userId, int monthValue, int yearValue) {
-        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).descending());
-        Page<Attendance> attendanceByCurrentMonth = attendanceCriteria.getAttendanceByMonth(pageable, monthValue, yearValue,userId);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortBy).descending());
+        Page<Attendance> attendanceByCurrentMonth = attendanceCriteria.getAttendanceByMonth(pageable, monthValue, yearValue, userId);
         return attendanceByCurrentMonth.map(attendanceMapper::toAttendanceResponse);
     }
 
@@ -111,7 +110,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     public AttendanceResponse findAttendanceById(Long id) {
         Attendance attendance = attendanceRepository.findById(id).orElse(null);
         AttendanceResponse attendanceResponse = attendanceMapper.toAttendanceResponse(attendance);
-        if(attendance != null) {
+        if (attendance != null) {
             attendanceResponse.setUserId(attendance.getUser().getId());
         }
         return attendanceResponse;
@@ -120,11 +119,10 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public void updateAttendance(Long id, UpdateAttendanceRequest request) {
         Attendance attendance = attendanceRepository.findById(id).orElse(null);
-        if(attendance != null) {
-            attendanceMapper.updateAttendance(attendance,request);
+        if (attendance != null) {
+            attendanceMapper.updateAttendance(attendance, request);
             attendanceRepository.save(attendance);
-        }
-        else {
+        } else {
             throw new AppException(ErrorMessage.ATTENDANCE_NOT_FOUND);
         }
     }
@@ -133,24 +131,26 @@ public class AttendanceServiceImpl implements AttendanceService {
     public void addAttendance(Long userId, AddAttendanceRequest request) {
         User user = userRepository.findById(userId).orElse(null);
         Attendance attendance = attendanceCriteria.getAttendanceById(request.getDate(), userId);
-        if(attendance == null) {
-            if(user != null) {
+        if (attendance == null) {
+            if (user != null) {
                 Attendance newAttendance = attendanceMapper.toAttendance(request);
                 newAttendance.setUser(user);
                 attendanceRepository.save(newAttendance);
             }
-        }
-        else {
+        } else {
             throw new AppException(ErrorMessage.ATTENDANCE_EXISTED);
         }
     }
 
     @Override
     public AttendanceResponse getAttendanceByDateUser(LocalDate localDate, Long userId) {
-        Attendance attendance = attendanceCriteria.getAttendanceById(localDate,userId);
-        AttendanceResponse attendanceResponse = attendanceMapper.toAttendanceResponse(attendance);
-        attendanceResponse.setUserId(attendance.getUser().getId());
-        return attendanceResponse;
+        Attendance attendance = attendanceCriteria.getAttendanceById(localDate, userId);
+        if (attendance != null) {
+            AttendanceResponse attendanceResponse = attendanceMapper.toAttendanceResponse(attendance);
+            attendanceResponse.setUserId(attendance.getUser().getId());
+            return attendanceResponse;
+        }
+        return null;
     }
 
 }

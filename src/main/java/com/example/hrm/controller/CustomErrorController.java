@@ -12,12 +12,9 @@ public class CustomErrorController implements ErrorController {
     @GetMapping("/error")
     public String handleError(HttpServletRequest request) {
         String errorPage = "error"; // default
-
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-
         if (status != null) {
-            Integer statusCode = Integer.valueOf(status.toString());
-
+            int statusCode = Integer.parseInt(status.toString());
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
                 errorPage = "error/error_404";
 
@@ -26,10 +23,8 @@ public class CustomErrorController implements ErrorController {
 
             } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
                 errorPage = "error/error_500";
-
             }
         }
-
         return errorPage;
     }
 }

@@ -1,6 +1,5 @@
 package com.example.hrm.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +7,9 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,6 +19,19 @@ public class NotificationResponse {
     private String title;
     private String message;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime localDateTime;
+    private String publishedTime;
+    private boolean isPublished;
+
+
+    public boolean isPublished() {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        LocalDateTime parsedDateTime;
+        try {
+            parsedDateTime = LocalDateTime.parse(publishedTime, formatter);
+            return parsedDateTime.isBefore(LocalDateTime.now());
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid date-time format: " + e.getMessage());
+        }
+        return false;
+    }
 }

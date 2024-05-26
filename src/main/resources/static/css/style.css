@@ -96,6 +96,9 @@ nav .notification{
 	margin-bottom: 15px;
 	cursor: pointer;
 }
+.notifi-href {
+	width: 400px;
+}
 .notifi-item:hover {
 	background-color: #eee;
 }
@@ -117,4 +120,19 @@ nav .notification{
 .notifi-item .text p {
 	color: #777;
 	font-size: 12px;
+}
+
+.datetime {
+    font-size: 12px;
+	color: #777;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+.error{
+    color: red;
+    font-style: italic;
 }

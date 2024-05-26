@@ -6,6 +6,7 @@ public class DepartmentRequest {
     private Long id;
     @NotBlank(message = "Không được bỏ trống")
     private String name;
+
     public DepartmentRequest() {
     }
 

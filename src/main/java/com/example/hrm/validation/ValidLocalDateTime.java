@@ -5,12 +5,13 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
+
 @Documented
-@Constraint(validatedBy = com.example.hrm.validation.LocalTimeValidator.class)
+@Constraint(validatedBy = com.example.hrm.validation.LocalDateTimeValidator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidLocalTime {
-    String message() default "Sai định dạng thời gian. Định dạng đúng là HH:mm:ss AM/PM.";
+public @interface ValidLocalDateTime {
+    String message() default "  Sai định dạng thời gian";
 
     Class<?>[] groups() default {};
 

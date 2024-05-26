@@ -7,7 +7,6 @@ import com.example.hrm.exception.AppException;
 import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.repository.DepartmentRepository;
-import com.example.hrm.repository.UserRepository;
 import com.example.hrm.repository.criteria.DepartmentCriteria;
 import com.example.hrm.service.DepartmentService;
 import jakarta.transaction.Transactional;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +35,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void createDepartment(DepartmentRequest request) {
-        if(departmentRepository.existsByName(request.getName())) {
+        if (departmentRepository.existsByName(request.getName())) {
             throw new AppException(ErrorMessage.DEPARTMENT_EXISTED);
         }
         Department department = new Department(request.getName(), 0L);
@@ -52,12 +50,11 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public void updateDepartment(Long id, DepartmentRequest departmentRequest) {
         Optional<Department> optionalDepartment = departmentRepository.findById(id);
-        if(optionalDepartment.isPresent()) {
+        if (optionalDepartment.isPresent()) {
             Department department = optionalDepartment.get();
             department.setName(departmentRequest.getName());
             departmentRepository.save(department);
-        }
-        else {
+        } else {
             throw new AppException(ErrorMessage.DEPARTMENT_NOT_FOUND);
         }
     }
@@ -65,11 +62,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public DepartmentResponse findById(Long id) {
         Optional<Department> optionalDepartment = departmentRepository.findById(id);
-        if(optionalDepartment.isPresent()) {
+        if (optionalDepartment.isPresent()) {
             Department department = optionalDepartment.get();
             return new DepartmentResponse(department.getId(), department.getName(), department.getQuantity());
-        }
-        else {
+        } else {
             throw new AppException(ErrorMessage.DEPARTMENT_NOT_FOUND);
         }
     }
@@ -86,15 +82,15 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Page<DepartmentResponse> findByNamePaging(int pageNumber, int pageSize, String sortBy, String name) {
-        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
-        Page<Department> list = departmentRepository.findByNamePaging(pageable,name);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortBy).ascending());
+        Page<Department> list = departmentRepository.findByNamePaging(pageable, name);
 
         return list.map(departmentMapper::departmentToDepartmentResponse);
     }
 
     @Override
     public Page<DepartmentResponse> findByNameActivePaging(int pageNumber, int pageSize, String sortBy, String name) {
-        Pageable pageable = PageRequest.of(pageNumber-1,pageSize, Sort.by(sortBy).ascending());
-        return departmentCriteria.getDepartmentsWithActiveUsers(pageable,name);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortBy).ascending());
+        return departmentCriteria.getDepartmentsWithActiveUsers(pageable, name);
     }
 }

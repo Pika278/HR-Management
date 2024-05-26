@@ -8,16 +8,17 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceResponse {
     private Long id;
-    private LocalDate date;
+    private String date;
     @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime checkinTime;
+    private String checkinTime;
     @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime checkoutTime;
+    private String checkoutTime;
     private Long userId;
 }

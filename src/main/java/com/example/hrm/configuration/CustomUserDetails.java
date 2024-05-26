@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 @Getter
 @Setter
 public class CustomUserDetails implements UserDetails {
@@ -35,9 +36,11 @@ public class CustomUserDetails implements UserDetails {
     public String getUsername() {
         return user.getEmail();
     }
+
     public String getFullName() {
         return user.getFullName();
     }
+
     public Long getId() {
         return user.getId();
     }

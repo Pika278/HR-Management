@@ -10,12 +10,16 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.department.id = ?1")
     Page<User> listDepartmentUser(Pageable pageable, Long departmentId);
+
     @Query("select u from User u where u.department.id = ?1 and u.is_active = TRUE")
     Page<User> listDepartmentUserActive(Pageable pageable, Long departmentId);
+
     boolean existsByEmail(String email);
+
     boolean existsByCitizenId(String citizenId);
+
     Optional<User> findByEmail(String email);
 }

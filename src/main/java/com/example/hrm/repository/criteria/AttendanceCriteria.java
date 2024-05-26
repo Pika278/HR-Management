@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.List;
@@ -28,13 +29,13 @@ public class AttendanceCriteria {
         criteriaQuery.select(root)
                 .where(
                         criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("user").get("Id"),userId),
-                                criteriaBuilder.equal(root.get("date"),localDate)
+                                criteriaBuilder.equal(root.get("user").get("Id"), userId),
+                                criteriaBuilder.equal(root.get("date"), localDate)
                         )
                 );
         TypedQuery<Attendance> query = em.createQuery(criteriaQuery);
         List<Attendance> list = query.getResultList();
-        if(list.isEmpty()) return null;
+        if (list.isEmpty()) return null;
         else if (list.size() == 1) {
             return list.get(0);
         }

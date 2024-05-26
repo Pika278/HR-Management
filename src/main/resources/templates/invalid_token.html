@@ -3,16 +3,16 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet" />
-    <link rel="icon" type="image/x-icon" href="../static/img/amela.jpg" th:href="@{/img/amela.jpg}">
+    <link href="../static/css/style.css" rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="../static/img/amela.jpg" rel="icon" th:href="@{/img/amela.jpg}" type="image/x-icon">
     <title>Invalid token</title>
 </head>
 <body>
 <div align="center">
     <h1>Invalid token</h1>
-        <div th:if="${param.token_invalid}" class="col-sm-8">
-            <p class="alert alert-danger">Token invalid</p>
-        </div>
+    <div class="col-sm-8" th:if="${param.token_invalid}">
+        <p class="alert alert-danger">Token invalid</p>
+    </div>
 </div>
 </body>
 </html>
