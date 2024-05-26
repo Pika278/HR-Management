@@ -109,11 +109,14 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public AttendanceResponse findAttendanceById(Long id) {
         Attendance attendance = attendanceRepository.findById(id).orElse(null);
-        AttendanceResponse attendanceResponse = attendanceMapper.toAttendanceResponse(attendance);
-        if (attendance != null) {
+        if(attendance != null) {
+            AttendanceResponse attendanceResponse = attendanceMapper.toAttendanceResponse(attendance);
             attendanceResponse.setUserId(attendance.getUser().getId());
+            return attendanceResponse;
         }
-        return attendanceResponse;
+        else {
+            throw new AppException(ErrorMessage.ATTENDANCE_NOT_FOUND);
+        }
     }
 
     @Override
@@ -140,6 +143,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         } else {
             throw new AppException(ErrorMessage.ATTENDANCE_EXISTED);
         }
+    }
+
+    @Override
+    public void deleteAttendance(Long id) {
+        attendanceRepository.findById(id).ifPresent(attendanceRepository::delete);
     }
 
     @Override

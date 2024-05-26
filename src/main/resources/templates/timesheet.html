@@ -29,17 +29,33 @@
             <th>Ngày</th>
             <th>Giờ Check-in</th>
             <th>Giờ Check-out</th>
-            <th sec:authorize="hasAuthority('ADMIN')">Sửa</th>
+            <th sec:authorize="hasAuthority('ADMIN')">Quản lý</th>
         </tr>
         </thead>
         <tbody>
         <tr align="center" th:each="attendance:${listAttendance}">
-<!--            <td th:text="${#temporals.format(attendance.date, 'dd-MM-yyyy')}"></td>-->
             <td th:text="${attendance.date}"></td>
             <td th:text="${attendance.checkinTime}"></td>
             <td th:text="${attendance.checkoutTime}"></td>
             <td align="center" sec:authorize="hasAuthority('ADMIN')">
-                <a class="btn btn-warning" th:href="@{'/updateAttendance/' + ${attendance.id}}">Sửa</a>
+                <a class="fa fa-pencil" th:href="@{'/updateAttendance/' + ${attendance.id}}"></a>
+                <span class="fa fa-trash" data-bs-toggle="modal" th:data-bs-target="'#modalDelete' + ${attendance.id}"></span>
+                <div class="modal fade text-center" th:id="'modalDelete' + ${attendance.id}">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">Thông báo</div>
+                            <div class="modal-body">
+                                <p>Bạn chắc chắn muốn xóa chấm công này chứ</p>
+                                <form action="#" align="center" class="form-container"
+                                      method="post" th:action="@{'/deleteAttendance/' + ${attendance.id}}">
+                                    <button class="btn btn-warning" type="submit">Xóa</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </td>
         </tr>
         </tbody>

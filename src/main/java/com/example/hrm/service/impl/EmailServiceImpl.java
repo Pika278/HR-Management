@@ -6,6 +6,8 @@ import com.example.hrm.service.EmailService;
 import com.example.hrm.service.VerifyTokenService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -13,25 +15,21 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+@RequiredArgsConstructor
 @Service
 public class EmailServiceImpl implements EmailService {
     private final VerifyTokenService verifyTokenService;
     private final TemplateEngine templateEngine;
     private final JavaMailSender javaMailSender;
-    private static final String URL_ACTIVATION = "http://localhost:8080/user/activation?token=";
-    private static final String URL_FORGOT_PASSWORD = "http://localhost:8080/user/resetPasswordForm?token=";
-
-    public EmailServiceImpl(VerifyTokenService verifyTokenService, TemplateEngine templateEngine, JavaMailSender javaMailSender) {
-        this.verifyTokenService = verifyTokenService;
-        this.templateEngine = templateEngine;
-        this.javaMailSender = javaMailSender;
-    }
+    @Value("${URL_ACTIVATION}")
+    private String URL_ACTIVATION;
+    @Value("${URL_RESET_PASSWORD}")
+    private String URL_FORGOT_PASSWORD;
 
     @Async
     @Override
     public void sendHTMLMail(User user) throws MessagingException {
         VerifyToken verifyToken = verifyTokenService.findByUser(user);
-        System.out.println(verifyToken);
         if (verifyToken != null) {
             String token = verifyToken.getToken();
             Context context = new Context();

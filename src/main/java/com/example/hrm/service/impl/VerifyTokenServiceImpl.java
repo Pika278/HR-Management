@@ -4,19 +4,17 @@ import com.example.hrm.entity.User;
 import com.example.hrm.entity.VerifyToken;
 import com.example.hrm.repository.VerifyTokenRepository;
 import com.example.hrm.service.VerifyTokenService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class VerifyTokenServiceImpl implements VerifyTokenService {
     private final VerifyTokenRepository verifyTokenRepository;
-
-    public VerifyTokenServiceImpl(VerifyTokenRepository verifyTokenRepository) {
-        this.verifyTokenRepository = verifyTokenRepository;
-    }
 
     @Override
     public void save(User user, String token) {

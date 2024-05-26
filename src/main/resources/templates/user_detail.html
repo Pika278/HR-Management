@@ -18,7 +18,8 @@
 <div class="container">
     <h1>Thông tin nhân viên</h1>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-warning border-dark" th:href="@{'/timesheet/user/' + ${user.id} + '/page/1'}">Xem bảng chấm công</a>
+        <a th:if="${userLoginId == user.id}" class="btn btn-warning border-dark" th:href="@{/timesheet/1}">Xem bảng chấm công</a>
+        <a th:unless="${userLoginId == user.id}" class="btn btn-warning border-dark" th:href="@{'/timesheet/user/' + ${user.id} + '/page/1'}">Xem bảng chấm công</a>
     </div>
     <div class="row g-3">
         <div class="mb-3 col-md-6">

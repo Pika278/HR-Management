@@ -68,7 +68,8 @@
                 </div>
             </td>
             <td align="center" sec:authorize="hasAuthority('ADMIN')">
-                <a class="btn btn-warning border-dark" th:href="@{'/admin/userDetail/' + ${user.id}}">&nbsp;Xem</a>
+                <a  th:if="${userLoginId == user.id}" class="btn btn-warning border-dark" th:href="@{/user/profile}">&nbsp;Xem</a>
+                <a  th:unless="${userLoginId == user.id}" class="btn btn-warning border-dark" th:href="@{'/admin/userDetail/' + ${user.id}}">&nbsp;Xem</a>
             </td>
         </tr>
         </tbody>

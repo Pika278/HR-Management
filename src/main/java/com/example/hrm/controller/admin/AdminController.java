@@ -1,8 +1,10 @@
 package com.example.hrm.controller.admin;
 
+import com.example.hrm.configuration.CustomUserDetails;
 import com.example.hrm.dto.request.*;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Department;
+import com.example.hrm.entity.User;
 import com.example.hrm.exception.AppException;
 import com.example.hrm.service.DepartmentService;
 import com.example.hrm.service.UserService;
@@ -10,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -67,6 +70,9 @@ public class AdminController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/userDetail/{id}")
     public String getUserDetail(@PathVariable("id") Long id, Model model) {
+        CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userLoggedInId = myUserDetails.getUser().getId();
+        model.addAttribute("userLoginId", userLoggedInId);
         UserResponse userResponse = userService.findById(id);
         model.addAttribute("user", userResponse);
         List<Department> listDepartment = departmentService.getAllDepartment();

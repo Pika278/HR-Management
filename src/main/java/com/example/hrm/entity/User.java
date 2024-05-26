@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,7 +39,8 @@ public class User {
     private Date createdAt;
     @UpdateTimestamp
     private Date updatedAt;
-
+    @OneToMany(mappedBy = "user")
+    private List<Attendance> attendances;
     public boolean isIs_active() {
         return is_active;
     }

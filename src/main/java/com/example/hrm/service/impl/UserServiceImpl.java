@@ -1,6 +1,5 @@
 package com.example.hrm.service.impl;
 
-import com.example.hrm.configuration.CustomUserDetailsService;
 import com.example.hrm.dto.request.ChangePasswordRequest;
 import com.example.hrm.dto.request.ForgotPasswordRequest;
 import com.example.hrm.dto.request.UpdateUserRequest;
@@ -21,12 +20,8 @@ import com.example.hrm.service.DepartmentService;
 import com.example.hrm.service.EmailService;
 import com.example.hrm.service.UserService;
 import com.example.hrm.service.VerifyTokenService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +40,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final VerifyTokenService verifyTokenService;
@@ -54,11 +48,8 @@ public class UserServiceImpl implements UserService {
     private final DepartmentService departmentService;
     private final DepartmentMapper departmentMapper;
     private final PasswordEncoder passwordEncoder;
-    private final CustomUserDetailsService customUserDetailsService;
     private final DepartmentRepository departmentRepository;
     private final SessionRegistry sessionRegistry;
-    private final HttpServletRequest httpServletRequest;
-    private final HttpServletResponse httpServletResponse;
 
     @Override
     public void createUser(UserRequest userRequest) {
@@ -107,8 +98,7 @@ public class UserServiceImpl implements UserService {
             }
             List<Object> principals = sessionRegistry.getAllPrincipals();
             for (Object principal : principals) {
-                if (principal instanceof UserDetails) {
-                    UserDetails userDetails = (UserDetails) principal;
+                if (principal instanceof UserDetails userDetails) {
                     if (userDetails.getUsername().equals(user.getEmail())) {
                         List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
                         for (SessionInformation session : sessions) {
@@ -128,7 +118,10 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             VerifyToken verifyToken = verifyTokenService.findByUser(user);
-            verifyTokenService.deleteToken(verifyToken);
+            if(verifyToken != null) {
+                verifyTokenService.deleteToken(verifyToken);
+
+            }
             userRepository.deleteById(id);
             DepartmentResponse departmentResponse = departmentService.findById(user.getDepartment().getId());
             Department department = departmentMapper.departmentResponsetoDepartment(departmentResponse);
@@ -212,7 +205,9 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(password));
         user.setIs_active(true);
         VerifyToken token = verifyTokenService.findByUser(user);
-        verifyTokenService.deleteToken(token);
+        if(token != null) {
+            verifyTokenService.deleteToken(token);
+        }
         userRepository.save(user);
     }
 
@@ -225,15 +220,20 @@ public class UserServiceImpl implements UserService {
     @Async
     @Override
     public void forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
-        UserResponse userResponse = findByEmail(forgotPasswordRequest.getEmail());
-        User user = userMapper.userResponseToUser(userResponse);
-        try {
-            String token = UUID.randomUUID().toString();
-            verifyTokenService.save(user, token);
-            //send email
-            emailService.sendForgotPasswordMail(user);
-        } catch (Exception e) {
-            e.printStackTrace();
+        User user = userRepository.findByEmail(forgotPasswordRequest.getEmail()).orElse(null);
+        if(user != null) {
+            try {
+                String token = UUID.randomUUID().toString();
+                if(verifyTokenService.findByUser(user) == null) {
+                    verifyTokenService.save(user, token);
+                }
+                else {
+                    verifyTokenService.updateToken(user,token);
+                }
+                emailService.sendForgotPasswordMail(user);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

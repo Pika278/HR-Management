@@ -62,7 +62,9 @@ public class UserDepartmentController {
     @GetMapping("/department/user/{departmentId}/page/{numPage}")
     public String listDepartmentUser(@PathVariable("departmentId") Long departmentId, @PathVariable(name = "numPage") int pageNum, Model model) {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserResponse userResponse = userService.findById(myUserDetails.getUser().getId());
+        Long userLoggedInId = myUserDetails.getUser().getId();
+        model.addAttribute("userLoginId", userLoggedInId);
+        UserResponse userResponse = userService.findById(userLoggedInId);
         Page<UserResponse> page;
         if (userResponse.getRole() == Role.ADMIN) {
             page = userService.listDepartmentUserPaging(pageNum, PAGE_SIZE, SORT_BY_ID, departmentId);

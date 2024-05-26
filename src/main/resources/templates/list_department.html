@@ -64,8 +64,8 @@
             </td>
             <td align="center" sec:authorize="hasAuthority('ADMIN')">
                 <span class="fa fa-pencil" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${dept.id}"
-                      th:id="'updateDepartment' + ${dept.id}" sec:authorize="hasAuthority('ADMIN')"></span>
-                <div class="modal fade text-center" th:id="'modal' + ${dept.id}" data-bs-backdrop='static' sec:authorize="hasAuthority('ADMIN')">
+                      th:id="'updateDepartment' + ${dept.id}"></span>
+                <div class="modal fade text-center" th:id="'modal' + ${dept.id}" data-bs-backdrop='static'>
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">Sửa phòng ban</div>
@@ -87,8 +87,8 @@
                     </div>
                 </div>
                 &nbsp;&nbsp;&nbsp;
-                <span class="fa fa-trash" data-bs-toggle="modal" th:data-bs-target="'#modalDelete' + ${dept.id}" data-bs-backdrop='static' sec:authorize="hasAuthority('ADMIN')"></span>
-                <div class="modal fade text-center" th:id="'modalDelete' + ${dept.id}" sec:authorize="hasAuthority('ADMIN')">
+                <span class="fa fa-trash" data-bs-toggle="modal" th:data-bs-target="'#modalDelete' + ${dept.id}" data-bs-backdrop='static'></span>
+                <div class="modal fade text-center" th:id="'modalDelete' + ${dept.id}">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">Xóa phòng ban</div>

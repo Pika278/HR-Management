@@ -6,7 +6,6 @@ import com.example.hrm.dto.response.AttendanceResponse;
 import com.example.hrm.exception.AppException;
 import com.example.hrm.mapper.AttendanceMapper;
 import com.example.hrm.service.AttendanceService;
-import com.example.hrm.service.UserService;
 import com.example.hrm.utils.DateTimeHelper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +25,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Controller
 public class AttendanceController {
-    private static final int PAGE_SIZE = 7;
+    private static final int PAGE_SIZE = 10;
     private static final String SORT_BY_DATE = "date";
     private final AttendanceService attendanceService;
-    private final UserService userService;
     private final AttendanceMapper attendanceMapper;
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -72,7 +70,7 @@ public class AttendanceController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/updateAttendance/{id}")
     public String updateAttendance(@PathVariable Long id, @Valid @ModelAttribute("attendance") UpdateAttendanceRequest request,
-                                   BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+                                   BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         AttendanceResponse attendanceResponse = attendanceService.findAttendanceById(id);
         if (request.getCheckoutTime() != null && request.getCheckoutTime().isBefore(request.getCheckinTime())) {
             bindingResult.addError(new FieldError("attendance", "checkoutTime", "Giờ checkout phải lớn hơn giờ checkin"));
@@ -95,7 +93,7 @@ public class AttendanceController {
             return "redirect:/updateAttendance/" + id;
         }
         attendanceService.updateAttendance(id, request);
-        return "redirect:/timesheet/" + attendanceResponse.getUserId() + "/1";
+        return "redirect:/timesheet/user/" + attendanceResponse.getUserId() + "/page/1";
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -112,19 +110,22 @@ public class AttendanceController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/addAttendance/{id}")
     public String addAttendance(@PathVariable("id") Long userId, @Valid @ModelAttribute("attendanceRequest") AddAttendanceRequest attendanceRequest,
-                                BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+                                BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (attendanceService.getAttendanceByDateUser(attendanceRequest.getDate(), userId) != null) {
             bindingResult.addError(new FieldError("attendanceRequest", "date", "Chấm công đã tồn tại"));
         }
         if (attendanceRequest.getCheckoutTime().isBefore(attendanceRequest.getCheckinTime())) {
             bindingResult.addError(new FieldError("attendanceRequest", "checkoutTime", "Giờ checkout phải lớn hơn giờ checkin"));
         }
+        if (attendanceRequest.getDate().isAfter(LocalDate.now())) {
+            bindingResult.addError(new FieldError("attendanceRequest", "date", "Không được sửa thời gian ở tương lai"));
+        }
         if (attendanceRequest.getDate().equals(LocalDate.now())) {
             if (attendanceRequest.getCheckoutTime() != null && attendanceRequest.getCheckoutTime().isAfter(LocalTime.now())) {
-                bindingResult.addError(new FieldError("attendance", "checkoutTime", "Không được sửa thời gian ở tương lai"));
+                bindingResult.addError(new FieldError("attendanceRequest", "checkoutTime", "Không được sửa thời gian ở tương lai"));
             }
             if (attendanceRequest.getCheckinTime() != null && attendanceRequest.getCheckinTime().isAfter(LocalTime.now())) {
-                bindingResult.addError(new FieldError("attendance", "checkinTime", "Không được sửa thời gian ở tương lai"));
+                bindingResult.addError(new FieldError("attendanceRequest", "checkinTime", "Không được sửa thời gian ở tương lai"));
             }
         }
         if (bindingResult.hasErrors()) {
@@ -137,7 +138,15 @@ public class AttendanceController {
             return "redirect:/addAttendance/" + userId;
         }
         attendanceService.addAttendance(userId, attendanceRequest);
-        return "redirect:/timesheet/" + userId + "/1";
+        return "redirect:/timesheet/user/" + userId + "/page/1";
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/deleteAttendance/{id}")
+    public String deleteAttendance(@PathVariable Long id) {
+        AttendanceResponse attendanceResponse = attendanceService.findAttendanceById(id);
+        attendanceService.deleteAttendance(id);
+        return "redirect:/timesheet/user/" + attendanceResponse.getUserId() + "/page/1";
     }
 
     @ExceptionHandler(AppException.class)

@@ -30,5 +30,7 @@ public interface AttendanceService {
 
     void addAttendance(Long userId, AddAttendanceRequest request);
 
+    void deleteAttendance(Long id);
+
     AttendanceResponse getAttendanceByDateUser(LocalDate localDate, Long userId);
 }

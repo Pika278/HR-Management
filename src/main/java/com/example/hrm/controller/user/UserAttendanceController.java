@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Controller
 public class UserAttendanceController {
-    private static final int PAGE_SIZE = 7;
+    private static final int PAGE_SIZE = 10;
     private static final String SORT_BY_DATE = "date";
     private final AttendanceService attendanceService;
     private final UserService userService;
