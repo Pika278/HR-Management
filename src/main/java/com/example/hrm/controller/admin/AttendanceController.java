@@ -59,7 +59,7 @@ public class AttendanceController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/updateAttendance/{id}")
     public String updateAttendanceForm(@PathVariable Long id, Model model) {
-        if(!model.containsAttribute("attendance")) {
+        if (!model.containsAttribute("attendance")) {
             AttendanceResponse attendanceResponse = attendanceService.findAttendanceById(id);
             model.addAttribute("attendance", attendanceResponse);
             model.addAttribute("attendanceId", id);
@@ -75,7 +75,7 @@ public class AttendanceController {
         if (request.getCheckoutTime() != null && request.getCheckoutTime().isBefore(request.getCheckinTime())) {
             bindingResult.addError(new FieldError("attendance", "checkoutTime", "Giờ checkout phải lớn hơn giờ checkin"));
         }
-        if (attendanceResponse.getDate().equals(DateTimeHelper.formatDate(LocalDate.now()))){
+        if (attendanceResponse.getDate().equals(DateTimeHelper.formatDate(LocalDate.now()))) {
             if (request.getCheckoutTime() != null && !DateTimeHelper.formatTime(request.getCheckoutTime()).equals(attendanceResponse.getCheckoutTime()) && request.getCheckoutTime().isAfter(LocalTime.now())) {
                 bindingResult.addError(new FieldError("attendance", "checkoutTime", "Không được sửa thời gian ở tương lai"));
             }
@@ -84,12 +84,12 @@ public class AttendanceController {
             }
         }
         if (bindingResult.hasErrors()) {
-            for(FieldError error: bindingResult.getFieldErrors()) {
+            for (FieldError error : bindingResult.getFieldErrors()) {
                 redirectAttributes.addFlashAttribute(error.getField(), error.getDefaultMessage());
             }
             AttendanceResponse response = attendanceMapper.attendanceRequestToUpdateAttendanceResponse(request);
             redirectAttributes.addFlashAttribute("attendance", response);
-            redirectAttributes.addFlashAttribute("attendanceId",id);
+            redirectAttributes.addFlashAttribute("attendanceId", id);
             return "redirect:/updateAttendance/" + id;
         }
         attendanceService.updateAttendance(id, request);
@@ -99,7 +99,7 @@ public class AttendanceController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/addAttendance/{id}")
     public String addAttendanceForm(@PathVariable("id") Long userId, Model model) {
-        if(!model.containsAttribute("attendanceRequest")) {
+        if (!model.containsAttribute("attendanceRequest")) {
             AddAttendanceRequest attendanceRequest = new AddAttendanceRequest();
             model.addAttribute("attendanceRequest", attendanceRequest);
             model.addAttribute("userId", userId);
@@ -129,12 +129,12 @@ public class AttendanceController {
             }
         }
         if (bindingResult.hasErrors()) {
-            for(FieldError error: bindingResult.getFieldErrors()) {
-                redirectAttributes.addFlashAttribute(error.getField(),error.getDefaultMessage());
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                redirectAttributes.addFlashAttribute(error.getField(), error.getDefaultMessage());
             }
             AttendanceResponse response = attendanceMapper.attendanceRequestToAddAttendanceResponse(attendanceRequest);
             redirectAttributes.addFlashAttribute("attendanceRequest", response);
-            redirectAttributes.addFlashAttribute("userId",userId);
+            redirectAttributes.addFlashAttribute("userId", userId);
             return "redirect:/addAttendance/" + userId;
         }
         attendanceService.addAttendance(userId, attendanceRequest);
