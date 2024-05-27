@@ -42,7 +42,7 @@
 
     <div th:if="${totalPages > 1}" th:with="pageUrlPostfix='?keyword=' + ${keyword}">
         <nav>
-            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/notification/page/'">
+            <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/admin/notification/page/'">
                 <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
                     <a class="page-link" th:href="@{${pageUrlPrefix} + ${1}} + ${pageUrlPostfix}">
                         First
