@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -70,17 +71,17 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
         log.info("emitter.size() when push noti{}", emitters.toString());
         Runnable task = () -> {
-            emitters.forEach(emitter -> {
+            for(Iterator<SseEmitter> emitter = emitters.iterator();emitter.hasNext();) {
+                SseEmitter emitterNext = emitter.next();
                 try {
-                    emitter.send(SseEmitter
+                    emitterNext.send(SseEmitter
                             .event()
                             .data(notification));
 
                 } catch (IOException e) {
-                    deadEmitters.add(emitter);
+                    deadEmitters.add(emitterNext);
                 }
-            });
-
+            }
             emitters.removeAll(deadEmitters);
         };
         ZonedDateTime zonedDateTime = ZonedDateTime.of(notification.getPublishedTime(), ZoneId.systemDefault());
