@@ -5,16 +5,17 @@ import com.example.hrm.dto.response.NotificationResponse;
 import com.example.hrm.entity.Role;
 import com.example.hrm.entity.User;
 import com.example.hrm.exception.AppException;
-import com.example.hrm.mapper.NotificationMapper;
 import com.example.hrm.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
@@ -42,10 +43,10 @@ public class UserNotificationController {
         User userLoggedIn = myUserDetails.getUser();
         Page<NotificationResponse> notificationPage;
         if (userLoggedIn.getRole() == Role.ADMIN) {
-            notificationPage = notificationService.getAllNotificationByDescPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
+            notificationPage = notificationService.getAllNotificationByDescPaging(pageNum, PAGE_SIZE, SORT_BY_ID, keyword);
 
         } else {
-            notificationPage = notificationService.findAllPublishedOrderByDescPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
+            notificationPage = notificationService.findAllPublishedOrderByDescPaging(pageNum, PAGE_SIZE, SORT_BY_ID, keyword);
         }
         List<NotificationResponse> notificationList = notificationPage.getContent();
         model.addAttribute("totalPages", notificationPage.getTotalPages());
@@ -63,7 +64,7 @@ public class UserNotificationController {
         NotificationResponse notificationResponse = notificationService.findNotificationById(id);
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User userLoggedIn = myUserDetails.getUser();
-        if(!notificationResponse.isPublished() && userLoggedIn.getRole() != Role.ADMIN) {
+        if (!notificationResponse.isPublished() && userLoggedIn.getRole() != Role.ADMIN) {
 //            return "redirect:/notification/page/1?keyword=";
             return "error/error_403";
 

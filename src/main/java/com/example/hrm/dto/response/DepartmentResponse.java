@@ -1,5 +1,6 @@
 package com.example.hrm.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,15 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class DepartmentResponse {
     private Long id;
     private String name;
     private Long quantity;
-
-    public DepartmentResponse(Long id, String name, Long quantity) {
-        this.id = id;
-        this.name = name;
-        this.quantity = quantity;
-    }
-
 }
