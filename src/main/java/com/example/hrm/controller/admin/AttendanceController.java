@@ -32,14 +32,12 @@ public class AttendanceController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/timesheet/user/{id}/page/{numPage}")
-    public String userTimesheetByMonth(@PathVariable(name = "id") Long userId, @PathVariable(name = "numPage") int pageNum, @RequestParam(value = "monthYear", required = false) String monthYear, Model model) {
+    public String userTimesheetByMonth(@PathVariable(name = "id") Long userId, @PathVariable(name = "numPage") int pageNum, @RequestParam(value = "monthYear",required = false) String monthYear, Model model) {
         Page<AttendanceResponse> page;
-        Integer month = null;
-        Integer year = null;
         if (monthYear != null && !monthYear.isEmpty()) {
             String[] parts = monthYear.split("-");
-            year = Integer.parseInt(parts[0]);
-            month = Integer.parseInt(parts[1]);
+            int year = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
             page = attendanceService.getAttendanceByMonth(pageNum, PAGE_SIZE, SORT_BY_DATE, userId, month, year);
         } else {
             page = attendanceService.getAttendanceByCurrentMonth(pageNum, PAGE_SIZE, SORT_BY_DATE, userId);
