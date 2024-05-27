@@ -38,7 +38,7 @@
                 </div>
             </div>
         </div>
-        <form class="form-inline m-3">
+        <form class="form-inline m-3" th:action="@{/department/1}">
             Filter search: &nbsp;<input name="keyword" th:value="${keyword}" type="text"/>
             &nbsp;&nbsp
             <input class="btn btn-warning border-dark" type="submit" value="Search"/>

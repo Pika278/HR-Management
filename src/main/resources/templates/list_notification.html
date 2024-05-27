@@ -16,7 +16,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <a class="btn btn-warning border-dark" th:href="@{/admin/pushNotification}">&nbsp;Thêm thông báo</a>
-    <form class="form-inline m-3">
+    <form class="form-inline m-3" th:action="@{'/admin/notification/page/1'}">
         Filter search: &nbsp;<input name="keyword" th:value="${keyword}" type="text"/>
         &nbsp;&nbsp
         <input class="btn btn-warning border-dark" type="submit" value="Search"/>

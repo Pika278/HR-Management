@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequestMapping("/admin")
 @Controller
@@ -42,9 +43,10 @@ public class NotificationController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/notification/page/{pageNum}")
     public String showListNotification(@PathVariable(name = "pageNum") int pageNum, @RequestParam(required = false) String keyword, Model model) {
-        Page<NotificationResponse> notificationList = notificationService.getAllNotificationByDescPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
-        model.addAttribute("totalPages", notificationList.getTotalPages());
-        model.addAttribute("totalItems", notificationList.getTotalElements());
+        Page<NotificationResponse> notificationPage = notificationService.getAllNotificationByDescPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
+        List<NotificationResponse> notificationList = notificationPage.getContent();
+        model.addAttribute("totalPages", notificationPage.getTotalPages());
+        model.addAttribute("totalItems", notificationPage.getTotalElements());
         model.addAttribute("currentPage", pageNum);
         model.addAttribute("pageSize", PAGE_SIZE);
         model.addAttribute("sortBy", SORT_BY_ID);
