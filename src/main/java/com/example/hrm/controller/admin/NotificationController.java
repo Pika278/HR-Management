@@ -8,7 +8,6 @@ import com.example.hrm.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RequestMapping("/admin")
 @Controller
@@ -40,7 +38,7 @@ public class NotificationController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/pushNotification")
-    public String send(@Valid @ModelAttribute("addNotificationRequest") NotificationRequest request, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String send(@Valid @ModelAttribute("addNotificationRequest") NotificationRequest request, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (request.getPublishedTime() != null && request.getPublishedTime().isBefore(LocalDateTime.now())) {
             bindingResult.addError(new FieldError("request", "publishedTime", "Thời gian gửi phải lớn hơn bây giờ"));
         }
@@ -74,7 +72,7 @@ public class NotificationController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/updateNotification/{id}")
     public String updateNotification(@PathVariable("id") Long id, @Valid @ModelAttribute("notification") NotificationRequest request,
-                                     BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+                                     BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         NotificationResponse notificationResponse = notificationService.findNotificationById(id);
         if (notificationResponse.isPublished()) {
             return "redirect:/notification/" + id;
