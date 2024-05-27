@@ -18,8 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class UserNotificationController {
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
-    private static final int PAGE_SIZE = 10;
-    private static final String SORT_BY_ID = "id";
+
 
     @GetMapping("/subscription")
     public SseEmitter subsribe() {
@@ -28,19 +27,6 @@ public class UserNotificationController {
         notificationService.addEmitter(sseEmitter);
         log.info("subscribed");
         return sseEmitter;
-    }
-
-    @GetMapping("/notification/page/{pageNum}")
-    public String showListNotification(@PathVariable(name = "pageNum") int pageNum, @RequestParam(required = false) String keyword, Model model) {
-        Page<NotificationResponse> notificationList = notificationService.getAllNotificationByDescPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
-        model.addAttribute("totalPages", notificationList.getTotalPages());
-        model.addAttribute("totalItems", notificationList.getTotalElements());
-        model.addAttribute("currentPage", pageNum);
-        model.addAttribute("pageSize", PAGE_SIZE);
-        model.addAttribute("sortBy", SORT_BY_ID);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("notificationList", notificationList);
-        return "list_notification";
     }
 
     @GetMapping("notification/{id}")

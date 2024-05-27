@@ -8,6 +8,7 @@ import com.example.hrm.service.NotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +26,8 @@ import java.time.LocalDateTime;
 public class NotificationController {
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
+    private static final int PAGE_SIZE = 10;
+    private static final String SORT_BY_ID = "id";
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/pushNotification")
@@ -34,6 +37,20 @@ public class NotificationController {
             model.addAttribute("addNotificationRequest", addNotificationRequest);
         }
         return "add_notification";
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/notification/page/{pageNum}")
+    public String showListNotification(@PathVariable(name = "pageNum") int pageNum, @RequestParam(required = false) String keyword, Model model) {
+        Page<NotificationResponse> notificationList = notificationService.getAllNotificationByDescPaging(pageNum,PAGE_SIZE,SORT_BY_ID,keyword);
+        model.addAttribute("totalPages", notificationList.getTotalPages());
+        model.addAttribute("totalItems", notificationList.getTotalElements());
+        model.addAttribute("currentPage", pageNum);
+        model.addAttribute("pageSize", PAGE_SIZE);
+        model.addAttribute("sortBy", SORT_BY_ID);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("notificationList", notificationList);
+        return "list_notification";
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
