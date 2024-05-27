@@ -187,6 +187,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Transactional
     @Override
     public void changeActive(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
@@ -194,6 +195,17 @@ public class UserServiceImpl implements UserService {
             User user = optionalUser.get();
             user.setIs_active(!user.isIs_active());
             userRepository.save(user);
+            List<Object> principals = sessionRegistry.getAllPrincipals();
+            for (Object principal : principals) {
+                if (principal instanceof UserDetails userDetails) {
+                    if (userDetails.getUsername().equals(user.getEmail())) {
+                        List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
+                        for (SessionInformation session : sessions) {
+                            session.expireNow(); // Invalidate the session
+                        }
+                    }
+                }
+            }
         } else {
             throw new AppException(ErrorMessage.USER_NOT_FOUND);
         }
