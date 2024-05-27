@@ -75,7 +75,7 @@
         </tbody>
     </table>
 
-    <div th:if="${totalPages > 1}" th:with="pageUrlPostfix='?keyword=' + ${keyword}">
+    <div th:with="pageUrlPostfix='?keyword=' + ${keyword}">
         <nav>
             <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/user/list/'">
                 <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
