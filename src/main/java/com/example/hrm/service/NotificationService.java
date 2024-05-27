@@ -2,6 +2,7 @@ package com.example.hrm.service;
 
 import com.example.hrm.dto.request.NotificationRequest;
 import com.example.hrm.dto.response.NotificationResponse;
+import com.example.hrm.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -11,7 +12,7 @@ public interface NotificationService {
     List<NotificationResponse> getTenPublishedNotification();
     Page<NotificationResponse> findAllPublishedOrderByDescPaging(int pageNumber, int pageSize, String sortBy, String keyword);
 
-    void addEmitter(SseEmitter emitter);
+    void addEmitter(Long userId,SseEmitter emitter);
 
     void pushNotification(NotificationRequest addNotificationRequest);
 

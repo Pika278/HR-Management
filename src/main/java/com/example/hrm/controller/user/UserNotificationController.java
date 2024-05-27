@@ -2,10 +2,12 @@ package com.example.hrm.controller.user;
 
 import com.example.hrm.configuration.CustomUserDetails;
 import com.example.hrm.dto.response.NotificationResponse;
+import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.Role;
 import com.example.hrm.entity.User;
 import com.example.hrm.exception.AppException;
 import com.example.hrm.service.NotificationService;
+import com.example.hrm.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,14 +27,15 @@ import java.util.List;
 @Slf4j
 public class UserNotificationController {
     private final NotificationService notificationService;
+    private final UserService userService;
     private static final int PAGE_SIZE = 10;
     private static final String SORT_BY_ID = "id";
 
     @GetMapping("/subscription")
-    public SseEmitter subsribe() {
+    public SseEmitter subsribe(@RequestParam Long userId) {
         log.info("subscribing...");
         SseEmitter sseEmitter = new SseEmitter(24 * 60 * 60 * 1000L);
-        notificationService.addEmitter(sseEmitter);
+        notificationService.addEmitter(userId,sseEmitter);
         log.info("subscribed");
         return sseEmitter;
     }

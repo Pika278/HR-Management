@@ -3,6 +3,7 @@ package com.example.hrm.service.impl;
 import com.example.hrm.dto.request.NotificationRequest;
 import com.example.hrm.dto.response.NotificationResponse;
 import com.example.hrm.entity.Notification;
+import com.example.hrm.entity.User;
 import com.example.hrm.exception.AppException;
 import com.example.hrm.exception.ErrorMessage;
 import com.example.hrm.mapper.NotificationMapper;
@@ -21,9 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final ThreadPoolTaskScheduler taskScheduler;
-    List<SseEmitter> emitters = new ArrayList<>();
+    private final Map<Long,SseEmitter> emitters = new HashMap<>() ;
 
     @Override
     public List<NotificationResponse> getTenPublishedNotification() {
@@ -51,16 +50,19 @@ public class NotificationServiceImpl implements NotificationService {
         return findAllPublishedOrderByDescPaging.map(notificationMapper :: toNotificationResponse);
     }
 
-    public void addEmitter(SseEmitter emitter) {
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
-        emitters.add(emitter);
+    public void addEmitter(Long userId,SseEmitter emitter) {
+//        emitter.onCompletion(() -> emitters.remove(emitter));
+//        emitter.onTimeout(() -> emitters.remove(emitter));
+//        emitters.add(emitter);
+        emitter.onCompletion(() -> emitters.remove(userId));
+        emitter.onTimeout(() -> emitters.remove(userId));
+        emitters.put(userId,emitter);
         log.info("add emitter: {}", emitter);
     }
 
     public void pushNotification(NotificationRequest addNotificationRequest) {
         log.info("pushing notification {}", addNotificationRequest);
-        List<SseEmitter> deadEmitters = new ArrayList<>();
+        Set<Long> deadEmitters = new HashSet<>();
 
         Notification notification = Notification
                 .builder()
@@ -69,20 +71,22 @@ public class NotificationServiceImpl implements NotificationService {
                 .publishedTime(addNotificationRequest.getPublishedTime())
                 .build();
         notificationRepository.save(notification);
-        log.info("emitter.size() when push noti{}", emitters.toString());
         Runnable task = () -> {
-            for(Iterator<SseEmitter> emitter = emitters.iterator();emitter.hasNext();) {
-                SseEmitter emitterNext = emitter.next();
+            Iterator<Map.Entry<Long,SseEmitter>> emitter = emitters.entrySet().iterator();
+            while (emitter.hasNext()) {
+                Map.Entry<Long,SseEmitter> entry = emitter.next();
+                Long key = entry.getKey();
+                SseEmitter value = entry.getValue();
                 try {
-                    emitterNext.send(SseEmitter
+                    value.send(SseEmitter
                             .event()
                             .data(notification));
 
                 } catch (IOException e) {
-                    deadEmitters.add(emitterNext);
+                    deadEmitters.add(key);
                 }
             }
-            emitters.removeAll(deadEmitters);
+            emitters.keySet().removeAll(deadEmitters);
         };
         ZonedDateTime zonedDateTime = ZonedDateTime.of(notification.getPublishedTime(), ZoneId.systemDefault());
         taskScheduler.schedule(task, zonedDateTime.toInstant());

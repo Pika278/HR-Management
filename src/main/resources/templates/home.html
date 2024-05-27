@@ -163,7 +163,8 @@
     }
 
     function startSSE() {
-        var eventSource = new EventSource('/subscription');
+        var userId = [[${userId}]]
+        var eventSource = new EventSource('/subscription?userId=' + userId);
         eventSource.onmessage = function(event) {
             var notification = JSON.parse(event.data);
             var container = document.getElementById('box');

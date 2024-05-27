@@ -33,6 +33,7 @@ public class AuthenticationController {
         CustomUserDetails myUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User userLoggedIn = myUserDetails.getUser();
         Long userId = userLoggedIn.getId();
+        model.addAttribute("userId",userId);
         LocalTime checkinTime = attendanceService.getCheckinTimeById(localDate, userId);
         LocalTime checkoutTime = attendanceService.getCheckoutTimeById(localDate, userId);
         if (checkinTime != null) {
