@@ -17,7 +17,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <h1>Thêm nhân viên</h1>
-    <form class="row g-3" method="post" th:action="@{/user/add}" th:object="${user}">
+    <form class="row g-3" method="post" th:action="@{/admin/add}" th:object="${user}">
         <div class="mb-3 col-md-6">
             <label class="form-label" for="email">Email</label>
             <input class="form-control" id="email" required th:field="*{email}" type="email">

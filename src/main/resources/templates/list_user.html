@@ -17,7 +17,7 @@
 <div th:replace="~{fragments :: menu}"></div>
 <div class="container">
     <div>
-        <a class="btn btn-warning border-dark" sec:authorize="hasAuthority('ADMIN')" th:href="@{/user/add}">&nbsp;Thêm
+        <a class="btn btn-warning border-dark" sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin/add}">&nbsp;Thêm
             nhân viên</a>
         <form class="form-inline m-3" th:action="@{/user/list/1}">
             Filter search: &nbsp;<input name="keyword" th:value="${keyword}" type="text"/>
