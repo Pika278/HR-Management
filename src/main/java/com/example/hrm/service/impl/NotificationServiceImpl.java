@@ -34,13 +34,20 @@ public class NotificationServiceImpl implements NotificationService {
     List<SseEmitter> emitters = new ArrayList<>();
 
     @Override
-    public List<NotificationResponse> getAllNotification() {
-        List<Notification> notificationList = notificationRepository.findAllPublishedOrderByDesc();
+    public List<NotificationResponse> getTenPublishedNotification() {
+        List<Notification> notificationList = notificationRepository.findTenPublishedOrderByDesc();
         List<NotificationResponse> responseList = new ArrayList<>();
         for (Notification notification : notificationList) {
             responseList.add(notificationMapper.toNotificationResponse(notification));
         }
         return responseList;
+    }
+
+    @Override
+    public Page<NotificationResponse> findAllPublishedOrderByDescPaging(int pageNumber, int pageSize, String sortBy, String keyword) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(sortBy).ascending());
+        Page<Notification> findAllPublishedOrderByDescPaging = notificationRepository.findAllPublishedOrderByDescPaging(pageable, keyword);
+        return findAllPublishedOrderByDescPaging.map(notificationMapper :: toNotificationResponse);
     }
 
     public void addEmitter(SseEmitter emitter) {

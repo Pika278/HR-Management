@@ -43,7 +43,7 @@ public class AuthenticationController {
         }
         List<AttendanceResponse> listAttendanceByWeek = attendanceService.getAttendanceByWeek(localDate, userId);
         model.addAttribute("listAttendance", listAttendanceByWeek);
-        List<NotificationResponse> listNotification = notificationService.getAllNotification();
+        List<NotificationResponse> listNotification = notificationService.getTenPublishedNotification();
         model.addAttribute("listNotification", listNotification);
         return "home";
     }

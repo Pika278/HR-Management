@@ -11,7 +11,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 public interface NotificationService {
-    List<NotificationResponse> getAllNotification();
+    List<NotificationResponse> getTenPublishedNotification();
+    Page<NotificationResponse> findAllPublishedOrderByDescPaging(int pageNumber, int pageSize, String sortBy, String keyword);
 
     void addEmitter(SseEmitter emitter);
 
