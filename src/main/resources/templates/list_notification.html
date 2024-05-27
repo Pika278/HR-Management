@@ -40,7 +40,7 @@
         </tbody>
     </table>
 
-    <div th:with="pageUrlPostfix='?keyword=' + ${keyword}">
+    <div th:if="${totalPages > 0}" th:with="pageUrlPostfix='?keyword=' + ${keyword}">
         <nav>
             <ul class="pagination justify-content-center" th:with="pageUrlPrefix='/notification/page/'">
                 <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">

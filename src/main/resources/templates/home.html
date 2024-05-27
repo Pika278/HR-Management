@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -72,7 +71,6 @@
                     </script>
                 </ul>
             </div>
-<!--            <div th:insert="~{notifications :: notification}"></div>-->
             <div class="notification">
                 <div class="icon" onclick="toggleNotifi()">
                     <img alt="" src="img/bell.png">
@@ -88,7 +86,9 @@
                             </a>
                         </div>
                     </div>
-<!--                    <button id="load-more" th:if="${listNotification.size() > 10}">Load More</button>-->
+                    <div align="center">
+                        <a th:href="@{/notification/page/1?keyword=}" class="btn btn-mute">Xem tất cả thông báo</a>
+                    </div>
                 </div>
             </div>
         </nav>

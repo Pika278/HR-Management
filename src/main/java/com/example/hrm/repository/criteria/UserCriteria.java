@@ -27,7 +27,6 @@ public class UserCriteria {
                 .where(
                         criteriaBuilder.or(
                                 criteriaBuilder.like(userRoot.get("fullName"), "%" + keyword + "%"),
-                                criteriaBuilder.like(userRoot.get("citizenId"), "%" + keyword + "%"),
                                 criteriaBuilder.like(userRoot.get("jobTitle"), "%" + keyword + "%")
                         )
                 );
@@ -50,7 +49,6 @@ public class UserCriteria {
                         criteriaBuilder.and(
                                 criteriaBuilder.or(
                                         criteriaBuilder.like(userRoot.get("fullName"), "%" + keyword + "%"),
-                                        criteriaBuilder.like(userRoot.get("citizenId"), "%" + keyword + "%"),
                                         criteriaBuilder.like(userRoot.get("jobTitle"), "%" + keyword + "%")
                                 ),
                                 criteriaBuilder.equal(userRoot.get("is_active"), true)
@@ -75,7 +73,6 @@ public class UserCriteria {
                 .where(
                         criteriaBuilder.or(
                                 criteriaBuilder.like(userRoot.get("fullName"), "%" + keyword + "%"),
-                                criteriaBuilder.like(userRoot.get("citizenId"), "%" + keyword + "%"),
                                 criteriaBuilder.like(userRoot.get("jobTitle"), "%" + keyword + "%")
                         )
                 );
@@ -93,7 +90,6 @@ public class UserCriteria {
                 criteriaBuilder.and(
                         criteriaBuilder.or(
                                 criteriaBuilder.like(userRoot.get("fullName"), "%" + keyword + "%"),
-                                criteriaBuilder.like(userRoot.get("citizenId"), "%" + keyword + "%"),
                                 criteriaBuilder.like(userRoot.get("jobTitle"), "%" + keyword + "%")
                         ),
                         criteriaBuilder.equal(userRoot.get("is_active"), true)
