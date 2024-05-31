@@ -20,8 +20,11 @@ import com.example.hrm.service.DepartmentService;
 import com.example.hrm.service.EmailService;
 import com.example.hrm.service.UserService;
 import com.example.hrm.service.VerifyTokenService;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +43,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final VerifyTokenService verifyTokenService;
@@ -51,8 +55,9 @@ public class UserServiceImpl implements UserService {
     private final DepartmentRepository departmentRepository;
     private final SessionRegistry sessionRegistry;
 
+    @Transactional
     @Override
-    public void createUser(UserRequest userRequest) {
+    public User createUser(UserRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new AppException(ErrorMessage.USER_EXISTED);
         }
@@ -62,17 +67,15 @@ public class UserServiceImpl implements UserService {
         if (department.isPresent()) {
             user.setDepartment(department.get());
             userRepository.save(user);
-            try {
-                String token = UUID.randomUUID().toString();
-                verifyTokenService.save(user, token);
-                //send verify email
-                emailService.sendHTMLMail(user);
-                Long quantity = department.get().getQuantity() + 1;
-                department.get().setQuantity(quantity);
-                departmentService.saveDepartment(department.get());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            String token = UUID.randomUUID().toString();
+            verifyTokenService.save(user, token);
+            Long quantity = department.get().getQuantity() + 1;
+            department.get().setQuantity(quantity);
+            departmentService.saveDepartment(department.get());
+            return user;
+        }
+        else {
+            throw new AppException(ErrorMessage.DEPARTMENT_NOT_FOUND);
         }
     }
 

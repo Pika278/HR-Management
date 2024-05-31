@@ -14,7 +14,8 @@ public enum ErrorMessage {
     USER_NOT_FOUND(1004, "User not found"),
     ATTENDANCE_NOT_FOUND(1005, "Attendance not found"),
     ATTENDANCE_EXISTED(1006, "Attendance existed"),
-    NOTIFICATION_NOT_FOUND(1007, "Notification not found");
+    NOTIFICATION_NOT_FOUND(1007, "Notification not found"),
+    DEPARTMENT_HAVE_USERS(1008, "Department have users");
     private int errorCode;
     private String message;
 

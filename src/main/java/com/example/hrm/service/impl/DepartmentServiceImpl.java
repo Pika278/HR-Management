@@ -9,7 +9,6 @@ import com.example.hrm.mapper.DepartmentMapper;
 import com.example.hrm.repository.DepartmentRepository;
 import com.example.hrm.repository.criteria.DepartmentCriteria;
 import com.example.hrm.service.DepartmentService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +26,6 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentMapper departmentMapper;
     private final DepartmentCriteria departmentCriteria;
 
-    @Transactional
     @Override
     public void saveDepartment(Department department) {
         departmentRepository.save(department);
@@ -72,7 +70,13 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void deleteDepartment(Long id) {
-        departmentRepository.deleteById(id);
+        Department department = departmentRepository.findById(id).orElse(null);
+        if(department != null && department.getQuantity() == 0) {
+            departmentRepository.deleteById(id);
+        }
+        else {
+            throw new AppException(ErrorMessage.DEPARTMENT_HAVE_USERS);
+        }
     }
 
     @Override

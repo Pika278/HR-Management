@@ -7,7 +7,9 @@ import com.example.hrm.entity.Department;
 import com.example.hrm.entity.User;
 import com.example.hrm.exception.AppException;
 import com.example.hrm.service.DepartmentService;
+import com.example.hrm.service.EmailService;
 import com.example.hrm.service.UserService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import java.util.List;
 public class AdminController {
     private final UserService userService;
     private final DepartmentService departmentService;
+    private final EmailService emailService;
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/add")
@@ -48,7 +51,7 @@ public class AdminController {
             @Valid @ModelAttribute("user") UserRequest userRequest,
             BindingResult bindingResult,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) throws MessagingException {
         if (userService.emailExists(userRequest.getEmail())) {
             bindingResult.addError(new FieldError("user", "email", "Email đã tồn tại"));
         }
@@ -62,7 +65,8 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("user", userRequest);
             return "redirect:/admin/add";
         } else {
-            userService.createUser(userRequest);
+            User user = userService.createUser(userRequest);
+            emailService.sendHTMLMail(user);
             return "redirect:/user/list/1?keyword=";
         }
     }

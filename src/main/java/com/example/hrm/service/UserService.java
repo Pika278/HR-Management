@@ -6,10 +6,11 @@ import com.example.hrm.dto.request.UpdateUserRequest;
 import com.example.hrm.dto.request.UserRequest;
 import com.example.hrm.dto.response.UserResponse;
 import com.example.hrm.entity.User;
+import jakarta.mail.MessagingException;
 import org.springframework.data.domain.Page;
 
 public interface UserService {
-    void createUser(UserRequest userRequest);
+    User createUser(UserRequest userRequest);
 
     void updateUser(Long id, UpdateUserRequest userRequest);
 

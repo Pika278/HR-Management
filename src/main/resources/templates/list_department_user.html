@@ -21,7 +21,7 @@
         <tr align="center">
             <th>Mã NV</th>
             <th>Tên nhân viên</th>
-            <th>CCCD</th>
+            <th>Ngày sinh</th>
             <th>Vị trí</th>
             <th sec:authorize="hasAuthority('ADMIN')">Trạng thái</th>
             <th sec:authorize="hasAuthority('ADMIN')">Xem chi tiết</th>
@@ -31,7 +31,7 @@
         <tr align="center" th:each="user:${listUsers}">
             <td th:text="${user.id}"></td>
             <td th:text="${user.fullName}"></td>
-            <td th:text="${user.citizenId}"></td>
+            <td th:text="${user.dateOfBirth}"></td>
             <td th:text="${user.jobTitle}"></td>
             <td sec:authorize="hasAuthority('ADMIN')">
                 <span class="btn btn-mute border-dark" data-bs-toggle="modal" th:data-bs-target="'#modal' + ${user.id}"
